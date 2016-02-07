@@ -5,12 +5,13 @@ import android.support.v7.widget.Toolbar;
 import android.os.Bundle;
 
 import com.exinnos.popularmovies.R;
+import com.exinnos.popularmovies.fragments.MoviesFragment;
 
 /**
  * @author RAMPRASAD
  * Main Activity for movies.
  */
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMoviesFragmentListener{
 
     private boolean twoPane;
 
@@ -30,5 +31,10 @@ public class MainActivity extends AppCompatActivity {
         if(findViewById(R.id.framelayout_detail_container) != null){
             twoPane = true;
         }
+    }
+
+    @Override
+    public void onMoviesFragmentItemSelected() {
+
     }
 }
