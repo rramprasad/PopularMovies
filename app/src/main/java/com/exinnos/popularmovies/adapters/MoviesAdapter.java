@@ -1,7 +1,6 @@
 package com.exinnos.popularmovies.adapters;
 
 import android.content.Context;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,12 +20,14 @@ import java.util.ArrayList;
  */
 public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
 
+    private final OnMovieClickListener mMovieClickListener;
     private Context context;
     private ArrayList<Movie> moviesArrayList;
 
-    public MoviesAdapter(Context context, ArrayList<Movie> moviesArrayList) {
+    public MoviesAdapter(Context context, ArrayList<Movie> moviesArrayList,OnMovieClickListener onMovieClickListener) {
         this.context = context;
         this.moviesArrayList = moviesArrayList;
+        this.mMovieClickListener = onMovieClickListener;
     }
 
     @Override
@@ -45,19 +46,20 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
         Picasso.with(context)
                 .load(imageURL)
-                //.centerCrop()
+                .placeholder(android.R.color.darker_gray)
+                .error(android.R.drawable.stat_notify_error)
                 .into(customViewHolder.movieposterImageView);
 
-        customViewHolder.movieposterImageView.setOnClickListener(new View.OnClickListener() {
+        /*customViewHolder.movieposterImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                /*MovieViewHolder movieViewHolder = (MovieViewHolder) view.getTag();
+                *//*MovieViewHolder movieViewHolder = (MovieViewHolder) view.getTag();
                 int position = movieViewHolder.getPosition();
 
                 Movie movie = moviesArrayList.get(position);
-                Snackbar.make(view,movie.getTitle(),Snackbar.LENGTH_SHORT).show();*/
+                Snackbar.make(view,movie.getTitle(),Snackbar.LENGTH_SHORT).show();*//*
             }
-        });
+        });*/
     }
 
     @Override
@@ -68,12 +70,27 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     /**
      * Custom view holder for a grid item.
      */
-    public class MovieViewHolder extends RecyclerView.ViewHolder {
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         protected ImageView movieposterImageView;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
             this.movieposterImageView = (ImageView)itemView.findViewById(R.id.movie_poster);
+
+            itemView.setOnClickListener(this);
         }
+
+        @Override
+        public void onClick(View view) {
+
+            int adapterPosition = getAdapterPosition();
+            int movieId = moviesArrayList.get(adapterPosition).getMovieId();
+
+            mMovieClickListener.onMovieClicked(movieId);
+        }
+    }
+
+    public interface OnMovieClickListener{
+        void onMovieClicked(int movieId);
     }
 }

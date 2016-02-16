@@ -80,7 +80,12 @@ public class MoviesFragment extends Fragment {
         moviesRecyclerView.setLayoutManager(moviesGridLayoutManager);
 
         moviesArrayList = new ArrayList<>();
-        moviesAdapter = new MoviesAdapter(getActivity(),moviesArrayList);
+        moviesAdapter = new MoviesAdapter(getActivity(), moviesArrayList, new MoviesAdapter.OnMovieClickListener() {
+            @Override
+            public void onMovieClicked(int movieId) {
+                mListener.onMovieSelected(movieId);
+            }
+        });
 
         moviesRecyclerView.setAdapter(moviesAdapter);
 
@@ -114,7 +119,7 @@ public class MoviesFragment extends Fragment {
      * Interface to communicate with host Activity.
      */
     public interface OnMoviesFragmentListener {
-        void onMoviesFragmentItemSelected();
+        void onMovieSelected(int movieId);
     }
 
     private class FetchMoviesAsyncTask extends AsyncTask<String, Void, Movie[]> {
