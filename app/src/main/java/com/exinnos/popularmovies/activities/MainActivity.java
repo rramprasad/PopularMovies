@@ -1,10 +1,13 @@
 package com.exinnos.popularmovies.activities;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.os.Bundle;
 
 import com.exinnos.popularmovies.R;
+import com.exinnos.popularmovies.data.Movie;
+import com.exinnos.popularmovies.fragments.MovieDetailFragment;
 import com.exinnos.popularmovies.fragments.MoviesFragment;
 
 /**
@@ -13,6 +16,7 @@ import com.exinnos.popularmovies.fragments.MoviesFragment;
  */
 public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMoviesFragmentListener{
 
+    public static final String INTENT_KEY_MOVIE_ID = "intent_key_movie_id";
     private boolean twoPane;
 
     @Override
@@ -34,7 +38,18 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
     }
 
     @Override
-    public void onMoviesFragmentItemSelected() {
+    public void onMovieSelected(int movieId) {
 
+        if(twoPane){
+            // This is a tablet device.
+            MovieDetailFragment movieDetailFragment = MovieDetailFragment.newInstance(movieId);
+            getSupportFragmentManager().beginTransaction().replace(R.id.framelayout_detail_container,movieDetailFragment).commit();
+        }
+        else{
+            // This is a mobile device.
+            Intent intent = new Intent(MainActivity.this,MovieDetailActivity.class);
+            intent.putExtra(INTENT_KEY_MOVIE_ID,movieId);
+            startActivity(intent);
+        }
     }
 }
