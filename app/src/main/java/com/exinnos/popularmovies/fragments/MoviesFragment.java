@@ -4,19 +4,27 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 
 import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.adapters.MoviesAdapter;
 import com.exinnos.popularmovies.data.Movie;
 import com.exinnos.popularmovies.util.AppConstants;
+import com.exinnos.popularmovies.util.AppUtilities;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,12 +48,17 @@ import java.util.ArrayList;
  */
 public class MoviesFragment extends Fragment {
 
+    private static final String SORT_ORDER_POPULARITY_DESC = "popularity.desc";
+    private static final String SORT_ORDER_VOTE_AVERAGE_DESC = "vote_average.desc";
     private OnMoviesFragmentListener mListener;
     private View rootView;
     private RecyclerView moviesRecyclerView;
     private GridLayoutManager moviesGridLayoutManager;
     private ArrayList<Movie> moviesArrayList;
     private MoviesAdapter moviesAdapter;
+    private Toolbar toolbar;
+    private AppCompatSpinner moviesTypeSpinner;
+    private String sortBy[] = {"Most popular","Highest Rated"};
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -63,6 +76,9 @@ public class MoviesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        toolbar = (Toolbar)getActivity().findViewById(R.id.toolbar);
+        moviesTypeSpinner = (AppCompatSpinner) toolbar.findViewById(R.id.movie_type_spinner);
     }
 
     @Override
@@ -70,6 +86,71 @@ public class MoviesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_movies, container, false);
+
+        /*ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
+
+        if(supportActionBar != null){
+
+            //supportActionBar.setDisplayShowTitleEnabled(false);
+
+            //toolbarCustomView = (Toolbar)supportActionBar.getCustomView();
+
+            toolbarCustomView = (Toolbar)getActivity().findViewById(R.id.toolbar);
+
+            moviesTypeSpinner = (Spinner) toolbarCustomView.findViewById(R.id.movie_type_spinner);
+
+            moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                    switch (position){
+                        case 0:
+                            loadMovies(SORT_ORDER_POPULARITY_DESC);
+                            break;
+                        case 1:
+                            loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                            break;
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> adapterView) {
+
+                }
+            });
+        }*/
+
+
+
+
+
+        //TextView toolBarTitleTextView = (TextView) getActivity().findViewById(R.id.main_activity_toolbar_title);
+        //toolBarTitleTextView.setText(R.string.title_add_car_fragment);
+
+        //moviesTypeSpinner = (AppCompatSpinner) toolbarCustomView.findViewById(R.id.movie_type_spinner);
+
+        //moviesTypeSpinner = (AppCompatSpinner) getActivity().findViewById(R.id.movie_type_spinner);
+
+        //moviesTypeSpinner = (AppCompatSpinner) toolbar.findViewById(R.id.movie_type_spinner);
+
+        moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                switch (position){
+                    case 0:
+                        loadMovies(SORT_ORDER_POPULARITY_DESC);
+                        break;
+                    case 1:
+                        loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
 
         moviesRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_for_movies);
 
@@ -95,7 +176,21 @@ public class MoviesFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        new FetchMoviesAsyncTask().execute("popularity.desc");
+        loadMovies(SORT_ORDER_POPULARITY_DESC);
+    }
+
+
+    /**
+     * Load movies in background
+     * @param sortby
+     */
+    private void loadMovies(String sortby) {
+        if(AppUtilities.isNetworkConnected(getActivity())) {
+            new FetchMoviesAsyncTask().execute(sortby);
+        }
+        else{
+            Snackbar.make(rootView,getActivity().getResources().getString(R.string.network_connection_not_available),Snackbar.LENGTH_SHORT).show();
+        }
     }
 
     @Override

@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
         Toolbar toolBar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolBar);
 
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         /**
          * Check detail container available or not.
          * It contains only sw600dp devices(tablets).
