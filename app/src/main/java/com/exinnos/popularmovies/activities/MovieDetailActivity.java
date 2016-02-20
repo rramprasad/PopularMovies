@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.exinnos.popularmovies.R;
@@ -23,6 +24,9 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+
         int movieId = getIntent().getIntExtra(MainActivity.INTENT_KEY_MOVIE_ID, 0);
 
 
@@ -34,5 +38,15 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
     @Override
     public void onMovieDetailFragmentInteraction() {
 
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if(item.getItemId() == android.R.id.home){
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }
