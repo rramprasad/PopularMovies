@@ -9,7 +9,7 @@ In order for the Movies app to function properly,get API key from https://www.th
 
 Also add following line to [USER_HOME]/.gradle/gradle.properties file.
 
-TheMovieDBAPIKey="<UNIQUE_API_KEY">
+TheMovieDBAPIKey="<UNIQUE_API_KEY>"
 
 ![alt text](screenshots/movies.png "Movies")
 ![alt text](screenshots/menu.png "Menu")
