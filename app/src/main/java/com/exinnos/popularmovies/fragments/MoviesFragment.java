@@ -1,13 +1,13 @@
 package com.exinnos.popularmovies.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -17,7 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Spinner;
+import android.widget.ArrayAdapter;
 
 import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
@@ -41,10 +41,7 @@ import java.util.ArrayList;
 
 /**
  * @author RAMPRASAD
- * Fragment for Movies list.
- * Activities that contain this fragment must implement the
- * {@link MoviesFragment.OnMoviesFragmentListener} interface
- * to handle interaction events.
+ *         Fragment for Movies list.
  */
 public class MoviesFragment extends Fragment {
 
@@ -58,7 +55,7 @@ public class MoviesFragment extends Fragment {
     private MoviesAdapter moviesAdapter;
     private Toolbar toolbar;
     private AppCompatSpinner moviesTypeSpinner;
-    private String sortBy[] = {"Most popular","Highest Rated"};
+    private String sortByArray[] = {"Most popular", "Highest Rated"};
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -76,9 +73,6 @@ public class MoviesFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        toolbar = (Toolbar)getActivity().findViewById(R.id.toolbar);
-        moviesTypeSpinner = (AppCompatSpinner) toolbar.findViewById(R.id.movie_type_spinner);
     }
 
     @Override
@@ -86,71 +80,6 @@ public class MoviesFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_movies, container, false);
-
-        /*ActionBar supportActionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
-
-        if(supportActionBar != null){
-
-            //supportActionBar.setDisplayShowTitleEnabled(false);
-
-            //toolbarCustomView = (Toolbar)supportActionBar.getCustomView();
-
-            toolbarCustomView = (Toolbar)getActivity().findViewById(R.id.toolbar);
-
-            moviesTypeSpinner = (Spinner) toolbarCustomView.findViewById(R.id.movie_type_spinner);
-
-            moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                    switch (position){
-                        case 0:
-                            loadMovies(SORT_ORDER_POPULARITY_DESC);
-                            break;
-                        case 1:
-                            loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
-                            break;
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) {
-
-                }
-            });
-        }*/
-
-
-
-
-
-        //TextView toolBarTitleTextView = (TextView) getActivity().findViewById(R.id.main_activity_toolbar_title);
-        //toolBarTitleTextView.setText(R.string.title_add_car_fragment);
-
-        //moviesTypeSpinner = (AppCompatSpinner) toolbarCustomView.findViewById(R.id.movie_type_spinner);
-
-        //moviesTypeSpinner = (AppCompatSpinner) getActivity().findViewById(R.id.movie_type_spinner);
-
-        //moviesTypeSpinner = (AppCompatSpinner) toolbar.findViewById(R.id.movie_type_spinner);
-
-        moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                switch (position){
-                    case 0:
-                        loadMovies(SORT_ORDER_POPULARITY_DESC);
-                        break;
-                    case 1:
-                        loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
-        });
-
 
         moviesRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_for_movies);
 
@@ -170,26 +99,66 @@ public class MoviesFragment extends Fragment {
 
         moviesRecyclerView.setAdapter(moviesAdapter);
 
+
         return rootView;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        loadMovies(SORT_ORDER_POPULARITY_DESC);
-    }
 
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+
+        toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
+        moviesTypeSpinner = (AppCompatSpinner) toolbar.findViewById(R.id.movie_type_spinner);
+
+        ArrayAdapter<String> sortByArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.simple_spinner_item, sortByArray);
+        sortByArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
+
+        moviesTypeSpinner.setAdapter(sortByArrayAdapter);
+
+        moviesTypeSpinner.setPopupBackgroundResource(R.color.colorPrimary);
+
+        moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        loadMovies(SORT_ORDER_POPULARITY_DESC);
+                        break;
+                    case 1:
+                        loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                // do nothing
+            }
+        });
+
+        int selectedItemPosition = moviesTypeSpinner.getSelectedItemPosition();
+        switch (selectedItemPosition) {
+            case 0:
+                loadMovies(SORT_ORDER_POPULARITY_DESC);
+                break;
+            case 1:
+                loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                break;
+        }
+
+        super.onActivityCreated(savedInstanceState);
+    }
 
     /**
      * Load movies in background
+     *
      * @param sortby
      */
     private void loadMovies(String sortby) {
-        if(AppUtilities.isNetworkConnected(getActivity())) {
+        if (AppUtilities.isNetworkConnected(getActivity())) {
             new FetchMoviesAsyncTask().execute(sortby);
-        }
-        else{
-            Snackbar.make(rootView,getActivity().getResources().getString(R.string.network_connection_not_available),Snackbar.LENGTH_SHORT).show();
+        } else {
+            Snackbar.make(rootView, getActivity().getResources().getString(R.string.network_connection_not_available), Snackbar.LENGTH_SHORT).show();
         }
     }
 
@@ -200,7 +169,7 @@ public class MoviesFragment extends Fragment {
             mListener = (OnMoviesFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnMoviesFragmentListener");
         }
     }
 
@@ -217,14 +186,26 @@ public class MoviesFragment extends Fragment {
         void onMovieSelected(int movieId);
     }
 
+    /**
+     * Async task to fetch movies based on given sort by parameter.
+     */
     private class FetchMoviesAsyncTask extends AsyncTask<String, Void, Movie[]> {
 
         private final String LOG_TAG = FetchMoviesAsyncTask.class.getSimpleName();
+        private ProgressDialog progressDialog;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            progressDialog = new ProgressDialog(getActivity());
+            progressDialog.setMessage("Updating...");
+            progressDialog.show();
+        }
 
         @Override
         protected Movie[] doInBackground(String... params) {
             // If no params given,return.
-            if(params.length == 0){
+            if (params.length == 0) {
                 return null;
             }
 
@@ -237,7 +218,7 @@ public class MoviesFragment extends Fragment {
                 final String API_KEY_PARAM = "api_key";
 
                 Uri.Builder uriBuilder = Uri.parse(AppConstants.MOVIES_BASE_URL).buildUpon();
-                uriBuilder.appendQueryParameter(SORY_BY_PARAM,params[0]);
+                uriBuilder.appendQueryParameter(SORY_BY_PARAM, params[0]);
                 uriBuilder.appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY);
                 Uri uri = uriBuilder.build();
 
@@ -257,12 +238,12 @@ public class MoviesFragment extends Fragment {
                 StringBuffer responseStringBuffer = new StringBuffer();
 
                 String responseLine;
-                while ((responseLine=bufferedReader.readLine()) != null){
+                while ((responseLine = bufferedReader.readLine()) != null) {
                     responseStringBuffer.append(responseLine);
                 }
 
                 // If no response available,return.
-                if(responseStringBuffer.length() == 0){
+                if (responseStringBuffer.length() == 0) {
                     return null;
                 }
 
@@ -274,26 +255,26 @@ public class MoviesFragment extends Fragment {
                 return movies;
 
             } catch (MalformedURLException e) {
-                Log.e(LOG_TAG,"MalformedURLException on URL",e);
+                Log.e(LOG_TAG, "MalformedURLException on URL", e);
                 return null;
             } catch (IOException e) {
-                Log.e(LOG_TAG,"Error",e);
+                Log.e(LOG_TAG, "Error", e);
                 return null;
             } catch (JSONException e) {
                 e.printStackTrace();
-                Log.e(LOG_TAG,"Json parse error",e);
+                Log.e(LOG_TAG, "Json parse error", e);
                 return null;
             } finally {
 
-                if(httpURLConnection != null){
+                if (httpURLConnection != null) {
                     httpURLConnection.disconnect();
                 }
 
-                if(bufferedReader != null){
+                if (bufferedReader != null) {
                     try {
                         bufferedReader.close();
                     } catch (IOException e) {
-                        Log.e(LOG_TAG,"exception while closing buffered reader",e);
+                        Log.e(LOG_TAG, "exception while closing buffered reader", e);
                     }
                 }
             }
@@ -303,24 +284,28 @@ public class MoviesFragment extends Fragment {
         protected void onPostExecute(Movie[] moviesArray) {
             super.onPostExecute(moviesArray);
 
-            if(moviesArray != null){
+            if (moviesArray != null) {
 
                 moviesArrayList.clear();
-                for(Movie movie : moviesArray){
+                for (Movie movie : moviesArray) {
                     moviesArrayList.add(movie);
                 }
 
                 moviesAdapter.notifyDataSetChanged();
             }
 
+            if (progressDialog != null && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+            }
         }
 
         /**
          * Parse given response JSON String.
+         *
          * @param responseJSONString
          * @throws JSONException
          */
-        private Movie[] parseMoviesJSON(String responseJSONString) throws JSONException{
+        private Movie[] parseMoviesJSON(String responseJSONString) throws JSONException {
 
             final String KEY_RESULTS = "results";
             final String KEY_POSTER_PATH = "poster_path";
@@ -339,7 +324,7 @@ public class MoviesFragment extends Fragment {
 
             Movie[] moviesArray = new Movie[moviesLength];
 
-            for (int i=0; i < moviesResultsJSONArray.length(); i++){
+            for (int i = 0; i < moviesResultsJSONArray.length(); i++) {
                 JSONObject movieJsonObject = moviesResultsJSONArray.getJSONObject(i);
                 String posterPath = movieJsonObject.getString(KEY_POSTER_PATH);
                 String overView = movieJsonObject.getString(KEY_OVERVIEW);

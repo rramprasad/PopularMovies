@@ -3,4 +3,16 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="spinner_text_padding">15dp</dimen>
+    <dimen name="toolbar_spinner_margin_left">10dp</dimen>
+    <dimen name="toolbar_spinner_dropdown_vertical_offset">30dp</dimen>
+    <dimen name="movie_details_layout_padding_bottom">10dp</dimen>
+    <dimen name="movie_details_layout_padding_left">20dp</dimen>
+    <dimen name="movie_details_layout_padding_right">10dp</dimen>
+    <dimen name="movie_details_layout_padding_top">10dp</dimen>
+    <dimen name="movie_title_textview_size">28sp</dimen>
+    <dimen name="movie_sub_title_textview_size">20sp</dimen>
+    <dimen name="movie_poster_imageview_margin_top">10dp</dimen>
+    <dimen name="overview_textview_padding">20dp</dimen>
+    <dimen name="overview_textview_textsize">20sp</dimen>
 </resources>
