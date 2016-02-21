@@ -2,6 +2,7 @@ package com.exinnos.popularmovies.util;
 
 /**
  * Created by RAMPRASAD on 2/7/2016.
+ * App constants class
  */
 public class AppConstants {
 
