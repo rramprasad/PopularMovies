@@ -34,7 +34,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     @Override
     public void onMovieDetailFragmentInteraction() {
-
+        // do nothing
     }
 
     @Override
