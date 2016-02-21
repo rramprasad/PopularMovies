@@ -15,12 +15,13 @@ public class AppUtilities {
 
     /**
      * Check Network connection of device.
+     *
      * @param context
      * @return
      */
-    public static boolean isNetworkConnected(Context context){
+    public static boolean isNetworkConnected(Context context) {
 
-        ConnectivityManager connectivityManager = (ConnectivityManager)context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
 
         return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
@@ -30,6 +31,7 @@ public class AppUtilities {
 
     /**
      * Format give date string
+     *
      * @param releaseDate
      * @return
      */
