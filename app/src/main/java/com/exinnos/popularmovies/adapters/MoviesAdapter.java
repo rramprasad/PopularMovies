@@ -24,7 +24,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     private Context context;
     private ArrayList<Movie> moviesArrayList;
 
-    public MoviesAdapter(Context context, ArrayList<Movie> moviesArrayList,OnMovieClickListener onMovieClickListener) {
+    public MoviesAdapter(Context context, ArrayList<Movie> moviesArrayList, OnMovieClickListener onMovieClickListener) {
         this.context = context;
         this.moviesArrayList = moviesArrayList;
         this.mMovieClickListener = onMovieClickListener;
@@ -67,15 +67,19 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         return ((moviesArrayList != null) ? moviesArrayList.size() : 0);
     }
 
+    public interface OnMovieClickListener {
+        void onMovieClicked(int movieId);
+    }
+
     /**
      * Custom view holder for a grid item.
      */
-    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         protected ImageView movieposterImageView;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
-            this.movieposterImageView = (ImageView)itemView.findViewById(R.id.movie_poster);
+            this.movieposterImageView = (ImageView) itemView.findViewById(R.id.movie_poster);
 
             itemView.setOnClickListener(this);
         }
@@ -88,9 +92,5 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
 
             mMovieClickListener.onMovieClicked(movieId);
         }
-    }
-
-    public interface OnMovieClickListener{
-        void onMovieClicked(int movieId);
     }
 }
