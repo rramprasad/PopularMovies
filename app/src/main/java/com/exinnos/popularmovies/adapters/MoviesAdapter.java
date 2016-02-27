@@ -14,6 +14,9 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by RAMPRASAD on 2/7/2016.
  * Adapter class for Movies.
@@ -49,17 +52,6 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
                 .placeholder(android.R.color.darker_gray)
                 .error(android.R.drawable.stat_notify_error)
                 .into(customViewHolder.movieposterImageView);
-
-        /*customViewHolder.movieposterImageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                *//*MovieViewHolder movieViewHolder = (MovieViewHolder) view.getTag();
-                int position = movieViewHolder.getPosition();
-
-                Movie movie = moviesArrayList.get(position);
-                Snackbar.make(view,movie.getTitle(),Snackbar.LENGTH_SHORT).show();*//*
-            }
-        });*/
     }
 
     @Override
@@ -75,11 +67,16 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
      * Custom view holder for a grid item.
      */
     public class MovieViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+
+        @Bind(R.id.movie_poster)
         protected ImageView movieposterImageView;
 
         public MovieViewHolder(View itemView) {
             super(itemView);
-            this.movieposterImageView = (ImageView) itemView.findViewById(R.id.movie_poster);
+
+            ButterKnife.bind(this,itemView);
+
+            //this.movieposterImageView = (ImageView) itemView.findViewById(R.id.movie_poster);
 
             itemView.setOnClickListener(this);
         }
@@ -88,7 +85,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         public void onClick(View view) {
 
             int adapterPosition = getAdapterPosition();
-            int movieId = moviesArrayList.get(adapterPosition).getMovieId();
+            int movieId = moviesArrayList.get(adapterPosition).getId();
 
             mMovieClickListener.onMovieClicked(movieId);
         }

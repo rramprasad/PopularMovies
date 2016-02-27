@@ -16,8 +16,12 @@ import android.widget.TextView;
 import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.data.Movie;
+import com.exinnos.popularmovies.data.MovieDetails;
+import com.exinnos.popularmovies.data.MoviesData;
+import com.exinnos.popularmovies.network.MoviesAPIService;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONException;
@@ -30,6 +34,16 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * @author RAMPRASAD
@@ -38,14 +52,25 @@ import java.net.URL;
 public class MovieDetailFragment extends Fragment {
 
     private static final String ARG_MOVIE_ID = "arg_movie_id";
+    private static final String LOG_TAG = "MovieDetailFragment";
     private int mMovieId;
     private OnMovieDetailFragmentListener mListener;
     private View rootView;
-    private TextView movieTitleTextView;
-    private TextView releaseDateTextView;
-    private TextView ratingTextView;
-    private TextView overviewTextView;
-    private ImageView moviePosterImageView;
+
+    @Bind(R.id.movie_title_textview)
+    TextView movieTitleTextView;
+
+    @Bind(R.id.release_date_textview)
+    TextView releaseDateTextView;
+
+    @Bind(R.id.rating_textview)
+    TextView ratingTextView;
+
+    @Bind(R.id.overview_textview)
+    TextView overviewTextView;
+
+    @Bind(R.id.movie_poster_imageview)
+    ImageView moviePosterImageView;
 
     public MovieDetailFragment() {
         // Required empty public constructor
@@ -73,11 +98,13 @@ public class MovieDetailFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
-        movieTitleTextView = (TextView) rootView.findViewById(R.id.movie_title_textview);
-        releaseDateTextView = (TextView) rootView.findViewById(R.id.release_date_textview);
-        ratingTextView = (TextView) rootView.findViewById(R.id.rating_textview);
-        overviewTextView = (TextView) rootView.findViewById(R.id.overview_textview);
-        moviePosterImageView = (ImageView) rootView.findViewById(R.id.movie_poster_imageview);
+        ButterKnife.bind(this,rootView);
+
+        //movieTitleTextView = (TextView) rootView.findViewById(R.id.movie_title_textview);
+        //releaseDateTextView = (TextView) rootView.findViewById(R.id.release_date_textview);
+        //ratingTextView = (TextView) rootView.findViewById(R.id.rating_textview);
+        //overviewTextView = (TextView) rootView.findViewById(R.id.overview_textview);
+        //moviePosterImageView = (ImageView) rootView.findViewById(R.id.movie_poster_imageview);
 
         return rootView;
     }
@@ -87,10 +114,49 @@ public class MovieDetailFragment extends Fragment {
         super.onStart();
 
         if (AppUtilities.isNetworkConnected(getActivity())) {
-            new FetchMovieDetailsAsyncTask().execute(mMovieId);
+            fetechMovieDetailsFromServer(mMovieId);
         } else {
             Snackbar.make(rootView, getActivity().getResources().getString(R.string.network_connection_not_available), Snackbar.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Fetch movie details from server.
+     * @param mMovieId
+     */
+    private void fetechMovieDetailsFromServer(int mMovieId) {
+
+        OkHttpClient httpClient = new OkHttpClient.Builder().addNetworkInterceptor(new StethoInterceptor()).build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(AppConstants.MOVIE_DETAILS_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build();
+
+        MoviesAPIService moviesAPIService = retrofit.create(MoviesAPIService.class);
+
+        Call<MovieDetails> movieDetailsCall = moviesAPIService.fetchMoviesDetails(mMovieId, BuildConfig.THE_MOVIE_DB_API_KEY);
+
+        movieDetailsCall.enqueue(new Callback<MovieDetails>() {
+            @Override
+            public void onResponse(Call<MovieDetails> call, Response<MovieDetails> response) {
+
+                Log.i(LOG_TAG,"on success "+response.isSuccess());
+
+                if (response != null) {
+                    MovieDetails movieDetails = response.body();
+                    updateOnUI(movieDetails);
+                } else {
+                    Snackbar.make(rootView, "Oops something went wrong.Try again.", Snackbar.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieDetails> call, Throwable t) {
+                Log.i(LOG_TAG,"Retrofit movies service on failure "+t.getMessage().toString());
+            }
+        });
     }
 
     @Override
@@ -113,23 +179,22 @@ public class MovieDetailFragment extends Fragment {
     /**
      * Update movie details on UI.
      *
-     * @param movie
+     * @param movieDetails
      */
-    private void updateOnUI(Movie movie) {
+    private void updateOnUI(MovieDetails movieDetails) {
 
-        movieTitleTextView.setText(movie.getTitle());
+        movieTitleTextView.setText(movieDetails.getTitle());
 
-        releaseDateTextView.setText(AppUtilities.getFormattedDate(movie.getReleaseDate()));
+        releaseDateTextView.setText(AppUtilities.getFormattedDate(movieDetails.getReleaseDate()));
 
-        ratingTextView.setText(String.format("%.1f/10", movie.getVoteAverage()));
+        ratingTextView.setText(String.format("%.1f/10", movieDetails.getVoteAverage()));
 
-        overviewTextView.setText(movie.getOverView());
+        overviewTextView.setText(movieDetails.getOverview());
 
-        String imageURL = AppConstants.MOVIE_POSTER_IMAGE_W342_BASE_URL + movie.getPosterPath();
+        String imageURL = AppConstants.MOVIE_POSTER_IMAGE_W342_BASE_URL + movieDetails.getPosterPath();
 
         Picasso.with(getActivity())
                 .load(imageURL)
-                //.fit()
                 .placeholder(android.R.color.darker_gray)
                 .error(android.R.drawable.stat_notify_error)
                 .into(moviePosterImageView);
@@ -140,139 +205,5 @@ public class MovieDetailFragment extends Fragment {
      */
     public interface OnMovieDetailFragmentListener {
         void onMovieDetailFragmentInteraction();
-    }
-
-    /**
-     * Async Task to fetch Movie details on background.
-     */
-    private class FetchMovieDetailsAsyncTask extends AsyncTask<Integer, Void, Movie> {
-
-        private final String LOG_TAG = FetchMovieDetailsAsyncTask.class.getSimpleName();
-
-        @Override
-        protected Movie doInBackground(Integer... params) {
-            // If no params given,return.
-            if (params.length == 0) {
-                return null;
-            }
-
-            int movieId = params[0];
-
-            HttpURLConnection httpURLConnection = null;
-            BufferedReader bufferedReader = null;
-            String responseJSONString = null;
-
-            try {
-                final String API_KEY_PARAM = "api_key";
-
-                Uri.Builder uriBuilder = Uri.parse(AppConstants.MOVIE_DETAILS_BASE_URL + "/" + movieId).buildUpon();
-                uriBuilder.appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY);
-                Uri uri = uriBuilder.build();
-
-                URL url = new URL(uri.toString());
-
-                //Open the connection
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.setRequestMethod("GET");
-                httpURLConnection.connect();
-
-
-                // Read response from input stream.
-                InputStream inputStream = httpURLConnection.getInputStream();
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                StringBuffer responseStringBuffer = new StringBuffer();
-
-                String responseLine;
-                while ((responseLine = bufferedReader.readLine()) != null) {
-                    responseStringBuffer.append(responseLine);
-                }
-
-                // If no response available,return.
-                if (responseStringBuffer.length() == 0) {
-                    return null;
-                }
-
-                // Response json string
-                responseJSONString = responseStringBuffer.toString();
-
-                Movie movie = parseMoviesDetailsJSON(responseJSONString);
-
-                return movie;
-
-            } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "MalformedURLException on URL", e);
-                return null;
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error", e);
-                return null;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e(LOG_TAG, "Json parse error", e);
-                return null;
-            } finally {
-
-                if (httpURLConnection != null) {
-                    httpURLConnection.disconnect();
-                }
-
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        Log.e(LOG_TAG, "exception while closing buffered reader", e);
-                    }
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Movie movie) {
-            super.onPostExecute(movie);
-
-            if (movie != null) {
-                updateOnUI(movie);
-            } else {
-                Snackbar.make(rootView, "Oops something went wrong.Try again.", Snackbar.LENGTH_SHORT).show();
-            }
-
-        }
-
-        /**
-         * Parse given response JSON String.
-         *
-         * @param responseJSONString
-         * @throws JSONException
-         */
-        private Movie parseMoviesDetailsJSON(String responseJSONString) throws JSONException {
-
-            final String KEY_POSTER_PATH = "poster_path";
-            final String KEY_OVERVIEW = "overview";
-            final String KEY_RELEASE_DATE = "release_date";
-            final String KEY_ID = "id";
-            final String KEY_TITLE = "original_title";
-            final String KEY_VOTE_AVERAGE = "vote_average";
-
-
-            JSONObject movieJsonObject = new JSONObject(responseJSONString);
-
-            String posterPath = movieJsonObject.getString(KEY_POSTER_PATH);
-            String overView = movieJsonObject.getString(KEY_OVERVIEW);
-            String releaseDate = movieJsonObject.getString(KEY_RELEASE_DATE);
-            int movieId = movieJsonObject.getInt(KEY_ID);
-            String keyTitle = movieJsonObject.getString(KEY_TITLE);
-            double voteAverage = movieJsonObject.getDouble(KEY_VOTE_AVERAGE);
-
-            Movie movie = new Movie();
-            movie.setPosterPath(posterPath);
-            movie.setOverView(overView);
-            movie.setReleaseDate(releaseDate);
-            movie.setMovieId(movieId);
-            movie.setTitle(keyTitle);
-            movie.setVoteAverage(voteAverage);
-
-            return movie;
-        }
     }
 }
