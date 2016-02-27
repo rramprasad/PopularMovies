@@ -23,21 +23,22 @@ import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.adapters.MoviesAdapter;
 import com.exinnos.popularmovies.data.Movie;
+import com.exinnos.popularmovies.data.MoviesData;
+import com.exinnos.popularmovies.network.MoviesAPIService;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 import java.util.ArrayList;
+import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import okhttp3.OkHttpClient;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * @author RAMPRASAD
@@ -47,14 +48,23 @@ public class MoviesFragment extends Fragment {
 
     private static final String SORT_ORDER_POPULARITY_DESC = "popularity.desc";
     private static final String SORT_ORDER_VOTE_AVERAGE_DESC = "vote_average.desc";
+    private static final String LOG_TAG = "MoviesFragment";
     private OnMoviesFragmentListener mListener;
     private View rootView;
-    private RecyclerView moviesRecyclerView;
+
+    @Bind(R.id.recyclerview_for_movies)
+    RecyclerView moviesRecyclerView;
+
     private GridLayoutManager moviesGridLayoutManager;
     private ArrayList<Movie> moviesArrayList;
     private MoviesAdapter moviesAdapter;
-    private Toolbar toolbar;
-    private AppCompatSpinner moviesTypeSpinner;
+
+    //@Bind(R.id.toolbar)
+    Toolbar toolbar;
+
+    //@Bind(R.id.movie_type_spinner)
+    AppCompatSpinner moviesTypeSpinner;
+
     private String sortByArray[] = {"Most popular", "Highest Rated"};
 
     public MoviesFragment() {
@@ -81,7 +91,9 @@ public class MoviesFragment extends Fragment {
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_movies, container, false);
 
-        moviesRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_for_movies);
+        ButterKnife.bind(this,rootView);
+
+        //moviesRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_for_movies);
 
         moviesRecyclerView.setHasFixedSize(true);
 
@@ -156,10 +168,52 @@ public class MoviesFragment extends Fragment {
      */
     private void loadMovies(String sortby) {
         if (AppUtilities.isNetworkConnected(getActivity())) {
-            new FetchMoviesAsyncTask().execute(sortby);
+            fetchMoviesFromServer(sortby);
         } else {
             Snackbar.make(rootView, getActivity().getResources().getString(R.string.network_connection_not_available), Snackbar.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * Fetch movies data from server.
+     * @param sortby
+     */
+    private void fetchMoviesFromServer(String sortby) {
+
+        OkHttpClient httpClient = new OkHttpClient.Builder().addNetworkInterceptor(new StethoInterceptor()).build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(AppConstants.MOVIES_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build();
+
+        MoviesAPIService moviesAPIService = retrofit.create(MoviesAPIService.class);
+
+        Call<MoviesData> moviesDataCall = moviesAPIService.fetchMoviesData(sortby, BuildConfig.THE_MOVIE_DB_API_KEY);
+
+        moviesDataCall.enqueue(new Callback<MoviesData>() {
+
+            @Override
+            public void onResponse(Call<MoviesData> call, Response<MoviesData> response) {
+
+                Log.i(LOG_TAG,"on success "+response.isSuccess());
+
+                if(response != null){
+                    List<Movie> movies = response.body().getMovies();
+                    moviesArrayList.clear();
+                    moviesArrayList.addAll(movies);
+                }
+
+                moviesAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onFailure(Call<MoviesData> call, Throwable t) {
+                Log.i(LOG_TAG,"Retrofit movies service on failure "+t.getMessage().toString());
+            }
+        });
+
     }
 
     @Override
@@ -184,167 +238,5 @@ public class MoviesFragment extends Fragment {
      */
     public interface OnMoviesFragmentListener {
         void onMovieSelected(int movieId);
-    }
-
-    /**
-     * Async task to fetch movies based on given sort by parameter.
-     */
-    private class FetchMoviesAsyncTask extends AsyncTask<String, Void, Movie[]> {
-
-        private final String LOG_TAG = FetchMoviesAsyncTask.class.getSimpleName();
-        private ProgressDialog progressDialog;
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            progressDialog = new ProgressDialog(getActivity());
-            progressDialog.setMessage("Updating...");
-            progressDialog.show();
-        }
-
-        @Override
-        protected Movie[] doInBackground(String... params) {
-            // If no params given,return.
-            if (params.length == 0) {
-                return null;
-            }
-
-            HttpURLConnection httpURLConnection = null;
-            BufferedReader bufferedReader = null;
-            String responseJSONString = null;
-
-            try {
-                final String SORY_BY_PARAM = "sort_by";
-                final String API_KEY_PARAM = "api_key";
-
-                Uri.Builder uriBuilder = Uri.parse(AppConstants.MOVIES_BASE_URL).buildUpon();
-                uriBuilder.appendQueryParameter(SORY_BY_PARAM, params[0]);
-                uriBuilder.appendQueryParameter(API_KEY_PARAM, BuildConfig.THE_MOVIE_DB_API_KEY);
-                Uri uri = uriBuilder.build();
-
-                URL url = new URL(uri.toString());
-
-                //Open the connection
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.setRequestMethod("GET");
-                httpURLConnection.connect();
-
-
-                // Read response from input stream.
-                InputStream inputStream = httpURLConnection.getInputStream();
-
-                bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
-
-                StringBuffer responseStringBuffer = new StringBuffer();
-
-                String responseLine;
-                while ((responseLine = bufferedReader.readLine()) != null) {
-                    responseStringBuffer.append(responseLine);
-                }
-
-                // If no response available,return.
-                if (responseStringBuffer.length() == 0) {
-                    return null;
-                }
-
-                // Response json string
-                responseJSONString = responseStringBuffer.toString();
-
-                Movie[] movies = parseMoviesJSON(responseJSONString);
-
-                return movies;
-
-            } catch (MalformedURLException e) {
-                Log.e(LOG_TAG, "MalformedURLException on URL", e);
-                return null;
-            } catch (IOException e) {
-                Log.e(LOG_TAG, "Error", e);
-                return null;
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Log.e(LOG_TAG, "Json parse error", e);
-                return null;
-            } finally {
-
-                if (httpURLConnection != null) {
-                    httpURLConnection.disconnect();
-                }
-
-                if (bufferedReader != null) {
-                    try {
-                        bufferedReader.close();
-                    } catch (IOException e) {
-                        Log.e(LOG_TAG, "exception while closing buffered reader", e);
-                    }
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Movie[] moviesArray) {
-            super.onPostExecute(moviesArray);
-
-            if (moviesArray != null) {
-
-                moviesArrayList.clear();
-                for (Movie movie : moviesArray) {
-                    moviesArrayList.add(movie);
-                }
-
-                moviesAdapter.notifyDataSetChanged();
-            }
-
-            if (progressDialog != null && progressDialog.isShowing()) {
-                progressDialog.dismiss();
-            }
-        }
-
-        /**
-         * Parse given response JSON String.
-         *
-         * @param responseJSONString
-         * @throws JSONException
-         */
-        private Movie[] parseMoviesJSON(String responseJSONString) throws JSONException {
-
-            final String KEY_RESULTS = "results";
-            final String KEY_POSTER_PATH = "poster_path";
-            final String KEY_OVERVIEW = "overview";
-            final String KEY_RELEASE_DATE = "release_date";
-            final String KEY_ID = "id";
-            final String KEY_TITLE = "original_title";
-            final String KEY_VOTE_AVERAGE = "vote_average";
-
-
-            JSONObject moviesJsonObject = new JSONObject(responseJSONString);
-
-            JSONArray moviesResultsJSONArray = moviesJsonObject.getJSONArray(KEY_RESULTS);
-
-            int moviesLength = moviesResultsJSONArray.length();
-
-            Movie[] moviesArray = new Movie[moviesLength];
-
-            for (int i = 0; i < moviesResultsJSONArray.length(); i++) {
-                JSONObject movieJsonObject = moviesResultsJSONArray.getJSONObject(i);
-                String posterPath = movieJsonObject.getString(KEY_POSTER_PATH);
-                String overView = movieJsonObject.getString(KEY_OVERVIEW);
-                String releaseDate = movieJsonObject.getString(KEY_RELEASE_DATE);
-                int movieId = movieJsonObject.getInt(KEY_ID);
-                String keyTitle = movieJsonObject.getString(KEY_TITLE);
-                double voteAverage = movieJsonObject.getDouble(KEY_VOTE_AVERAGE);
-
-                Movie movie = new Movie();
-                movie.setPosterPath(posterPath);
-                movie.setOverView(overView);
-                movie.setReleaseDate(releaseDate);
-                movie.setMovieId(movieId);
-                movie.setTitle(keyTitle);
-                movie.setVoteAverage(voteAverage);
-
-                moviesArray[i] = movie;
-            }
-
-            return moviesArray;
-        }
     }
 }
