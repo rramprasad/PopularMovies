@@ -8,6 +8,8 @@ import android.view.MenuItem;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.fragments.MovieDetailFragment;
 
+import butterknife.ButterKnife;
+
 /**
  * @author RAMPRASAD
  *         Activity for movie details
@@ -19,7 +21,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = ButterKnife.findById(this,R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
