@@ -1,8 +1,8 @@
 package com.exinnos.popularmovies.fragments;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -15,26 +15,14 @@ import android.widget.TextView;
 
 import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
-import com.exinnos.popularmovies.data.Movie;
+import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.data.MovieDetails;
-import com.exinnos.popularmovies.data.MoviesData;
+import com.exinnos.popularmovies.database.MoviesDbHelper;
 import com.exinnos.popularmovies.network.MoviesAPIService;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.squareup.picasso.Picasso;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -146,7 +134,36 @@ public class MovieDetailFragment extends Fragment {
 
                 if (response != null) {
                     MovieDetails movieDetails = response.body();
+
+                    MoviesDbHelper moviesDbHelper = new MoviesDbHelper(getActivity());
+                    SQLiteDatabase moviesDatabase = moviesDbHelper.getWritableDatabase();
+
+                    ContentValues contentValues = new ContentValues();
+                    contentValues.put(MoviesContract.MoviesEntry._ID,movieDetails.getId());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_ADULT,movieDetails.getAdult());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_BACKDROP_PATH,movieDetails.getBackdropPath());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_BUDGET,movieDetails.getBudget());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_HOME_PAGE,movieDetails.getHomepage());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_IMDB_ID,movieDetails.getImdbId());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_LANGUAGE,movieDetails.getOriginalLanguage());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE,movieDetails.getOriginalTitle());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW,movieDetails.getOverview());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_POPULARITY,movieDetails.getPopularity());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH,movieDetails.getPosterPath());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE,movieDetails.getReleaseDate());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_REVENUE,movieDetails.getRevenue());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_RUNTIME,movieDetails.getRuntime());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_STATUS,movieDetails.getStatus());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_TAGLINE,movieDetails.getTagline());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_VIDEO,movieDetails.getVideo());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE,movieDetails.getVoteAverage());
+                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT,movieDetails.getVoteCount());
+
+                    moviesDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME,null,contentValues);
+
+                    // Update on UI
                     updateOnUI(movieDetails);
+
                 } else {
                     Snackbar.make(rootView, "Oops something went wrong.Try again.", Snackbar.LENGTH_SHORT).show();
                 }

@@ -1,9 +1,9 @@
 package com.exinnos.popularmovies.fragments;
 
-import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
-import android.net.Uri;
-import android.os.AsyncTask;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -22,8 +22,10 @@ import android.widget.ArrayAdapter;
 import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.adapters.MoviesAdapter;
+import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.data.Movie;
 import com.exinnos.popularmovies.data.MoviesData;
+import com.exinnos.popularmovies.database.MoviesDbHelper;
 import com.exinnos.popularmovies.network.MoviesAPIService;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
@@ -200,9 +202,11 @@ public class MoviesFragment extends Fragment {
                 Log.i(LOG_TAG,"on success "+response.isSuccess());
 
                 if(response != null){
-                    List<Movie> movies = response.body().getMovies();
+                    List<Movie> moviesList = response.body().getMovies();
                     moviesArrayList.clear();
-                    moviesArrayList.addAll(movies);
+                    moviesArrayList.addAll(moviesList);
+
+                    storeOnLocalDatabase(moviesList);
                 }
 
                 moviesAdapter.notifyDataSetChanged();
@@ -214,6 +218,38 @@ public class MoviesFragment extends Fragment {
             }
         });
 
+    }
+
+    private void storeOnLocalDatabase(List<Movie> moviesList) {
+
+        MoviesDbHelper moviesDbHelper = new MoviesDbHelper(getActivity());
+        SQLiteDatabase moviesDatabase = moviesDbHelper.getWritableDatabase();
+
+        for(Movie movie : moviesList){
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(MoviesContract.MoviesEntry._ID,movie.getId());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_ADULT,movie.getAdult());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_BACKDROP_PATH,movie.getBackdropPath());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_LANGUAGE,movie.getOriginalLanguage());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE,movie.getOriginalTitle());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW,movie.getOverview());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_POPULARITY,movie.getPopularity());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH,movie.getPosterPath());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE,movie.getReleaseDate());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_VIDEO,movie.getVideo());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE,movie.getVoteAverage());
+            contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT,movie.getVoteCount());
+
+            Cursor cursor = moviesDatabase.query(MoviesContract.MoviesEntry.TABLE_NAME, null, MoviesContract.MoviesEntry._ID + "=?", new String[]{String.valueOf(movie.getId())}, null, null, null);
+
+            if(cursor.getCount() > 0){
+                moviesDatabase.update(MoviesContract.MoviesEntry.TABLE_NAME,contentValues,MoviesContract.MoviesEntry._ID + "=?", new String[]{String.valueOf(movie.getId())});
+            }
+            else{
+                moviesDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME,null,contentValues);
+            }
+        }
+        moviesDatabase.close();
     }
 
     @Override
