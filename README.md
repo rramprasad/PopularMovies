@@ -11,5 +11,5 @@ Also add following line to [USER_HOME]/.gradle/gradle.properties file.
 
 TheMovieDBAPIKey="YOUR_UNIQUE_API_KEY"
 
-![alt text](screenshots/movies.png "Movies") ![alt text](screenshots/menu.png "Menu") <br>
+![alt text](screenshots/movies.png "Movies") ![alt text](screenshots/menu.png "Menu")
 ![alt text](screenshots/highest_rated.png "Highest Rated")![alt text](screenshots/movie_details.png "Movie Details")
