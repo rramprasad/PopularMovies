@@ -1,6 +1,7 @@
 package com.exinnos.popularmovies.adapters;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,11 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.exinnos.popularmovies.R;
-import com.exinnos.popularmovies.data.Movie;
+import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -21,15 +20,15 @@ import butterknife.ButterKnife;
  * Created by RAMPRASAD on 2/7/2016.
  * Adapter class for Movies.
  */
-public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewHolder> {
+public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.MovieViewHolder> {
 
     private final OnMovieClickListener mMovieClickListener;
     private Context context;
-    private ArrayList<Movie> moviesArrayList;
 
-    public MoviesAdapter(Context context, ArrayList<Movie> moviesArrayList, OnMovieClickListener onMovieClickListener) {
+    public MoviesAdapter(Context context, Cursor cursor, OnMovieClickListener onMovieClickListener) {
+        super(context, cursor);
+
         this.context = context;
-        this.moviesArrayList = moviesArrayList;
         this.mMovieClickListener = onMovieClickListener;
     }
 
@@ -43,20 +42,14 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
     }
 
     @Override
-    public void onBindViewHolder(MovieViewHolder customViewHolder, int position) {
-
-        String imageURL = AppConstants.MOVIE_POSTER_IMAGE_BASE_URL + moviesArrayList.get(position).getPosterPath();
+    public void onBindViewHolder(MovieViewHolder customViewHolder, Cursor cursor) {
+        String imageURL = AppConstants.MOVIE_POSTER_IMAGE_BASE_URL + cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH));
 
         Picasso.with(context)
                 .load(imageURL)
                 .placeholder(android.R.color.darker_gray)
                 .error(android.R.drawable.stat_notify_error)
                 .into(customViewHolder.movieposterImageView);
-    }
-
-    @Override
-    public int getItemCount() {
-        return ((moviesArrayList != null) ? moviesArrayList.size() : 0);
     }
 
     public interface OnMovieClickListener {
@@ -74,9 +67,7 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         public MovieViewHolder(View itemView) {
             super(itemView);
 
-            ButterKnife.bind(this,itemView);
-
-            //this.movieposterImageView = (ImageView) itemView.findViewById(R.id.movie_poster);
+            ButterKnife.bind(this, itemView);
 
             itemView.setOnClickListener(this);
         }
@@ -84,9 +75,12 @@ public class MoviesAdapter extends RecyclerView.Adapter<MoviesAdapter.MovieViewH
         @Override
         public void onClick(View view) {
 
-            int adapterPosition = getAdapterPosition();
-            int movieId = moviesArrayList.get(adapterPosition).getId();
+            Cursor cursor = getCursor();
 
+            int movieId = 0;
+            if (cursor != null) {
+                movieId = cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH));
+            }
             mMovieClickListener.onMovieClicked(movieId);
         }
     }
