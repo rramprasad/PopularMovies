@@ -3,7 +3,7 @@
     package="com.exinnos.popularmovies">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
         android:name=".MoviesApplication"
@@ -25,7 +25,13 @@
         <activity
             android:name=".activities.MovieDetailActivity"
             android:label="@string/title_activity_movie_detail"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <provider
+            android:name=".MoviesProvider"
+            android:authorities="com.exinnos.popularmovies"
+            android:enabled="true"
+            android:exported="false"/>
     </application>
 
 </manifest>
