@@ -93,6 +93,10 @@ public final class MoviesContract {
         public static final String TABLE_NAME = "highest_rated_movies";
 
         public static final String COLUMN_MOVIE_ID = "movie_id";
+
+        public static Uri buildHighestRatedMoviesUri() {
+            return CONTENT_URI.buildUpon().build();
+        }
     }
 
 
@@ -106,12 +110,15 @@ public final class MoviesContract {
         public static final String TABLE_NAME = "favorite_movies";
 
         public static final String COLUMN_MOVIE_ID = "movie_id";
+
+        public static Uri buildFavoriteMoviesUri() {
+            return CONTENT_URI.buildUpon().build();
+        }
     }
 
 
     // Table for movie reviews
     public static final class MovieReviewsEntry implements BaseColumns {
-
 
         public static final Uri CONTENT_URI = BASE_CONTENT_URI.buildUpon()
                 .appendPath(PATH_MOVIE_REVIEWS).build();

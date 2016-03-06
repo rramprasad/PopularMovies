@@ -57,7 +57,17 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String SORT_ORDER_VOTE_AVERAGE_DESC = "vote_average.desc";
     private static final String LOG_TAG = "MoviesFragment";
     private static final int POPULAR_MOVIES_LOADER = 1;
+    private static final int HIGHEST_RATED_MOVIES_LOADER = 2;
+    private static final int FAVORITE_MOVIES_LOADER = 3;
+
     private static final String[] POPULAR_MOVIES_COLUMNS = {MoviesContract.PopularMoviesEntry.TABLE_NAME + "." + MoviesContract.PopularMoviesEntry._ID,MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID, MoviesContract.MoviesEntry.COLUMN_POSTER_PATH};
+
+    private static final String[] HIGHEST_RATED_MOVIES_COLUMNS = {MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "." + MoviesContract.HighestRatedMoviesEntry._ID,
+            MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID, MoviesContract.MoviesEntry.COLUMN_POSTER_PATH};
+
+    private static final String[] FAVORITE_MOVIES_COLUMNS = {MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry._ID,
+            MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID, MoviesContract.MoviesEntry.COLUMN_POSTER_PATH};
+
     private OnMoviesFragmentListener mListener;
     private View rootView;
 
@@ -74,7 +84,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     //@Bind(R.id.movie_type_spinner)
     AppCompatSpinner moviesTypeSpinner;
 
-    private String sortByArray[] = {"Most popular", "Highest Rated"};
+    private String sortByArray[] = {"Most popular", "Highest Rated", "My Favorite"};
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -148,12 +158,19 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+
                 switch (position) {
                     case 0:
-                        loadMovies(SORT_ORDER_POPULARITY_DESC);
+                        //loadMovies(SORT_ORDER_POPULARITY_DESC);
+                        getLoaderManager().initLoader(POPULAR_MOVIES_LOADER, null, MoviesFragment.this);
                         break;
                     case 1:
-                        loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                        //loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                        getLoaderManager().initLoader(HIGHEST_RATED_MOVIES_LOADER, null, MoviesFragment.this);
+                        break;
+                    case 2:
+                        //loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                        getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER, null, MoviesFragment.this);
                         break;
                 }
             }
@@ -167,10 +184,15 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         int selectedItemPosition = moviesTypeSpinner.getSelectedItemPosition();
         switch (selectedItemPosition) {
             case 0:
-                loadMovies(SORT_ORDER_POPULARITY_DESC);
+                //loadMovies(SORT_ORDER_POPULARITY_DESC);
+                getLoaderManager().initLoader(POPULAR_MOVIES_LOADER, null, this);
                 break;
             case 1:
-                loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                //loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
+                getLoaderManager().initLoader(HIGHEST_RATED_MOVIES_LOADER, null, this);
+                break;
+            case 2:
+                getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER, null, this);
                 break;
         }
 
@@ -301,15 +323,28 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 
-        //if (id == POPULAR_MOVIES_LOADER) {
+        if (id == POPULAR_MOVIES_LOADER) {
             String sortOrder = MoviesContract.MoviesEntry.COLUMN_POPULARITY + " DESC";
 
             Uri popularMoviesUri = MoviesContract.PopularMoviesEntry.buildPopularMoviesUri();
 
             return new CursorLoader(getActivity(), popularMoviesUri, POPULAR_MOVIES_COLUMNS, null, null, sortOrder);
-        //} else {
-        //    return null;
-        //}
+        } else if(id == HIGHEST_RATED_MOVIES_LOADER){
+
+            String sortOrder = MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE + " DESC";
+
+            Uri highestRatedMoviesUri = MoviesContract.HighestRatedMoviesEntry.buildHighestRatedMoviesUri();
+
+            return new CursorLoader(getActivity(),highestRatedMoviesUri,HIGHEST_RATED_MOVIES_COLUMNS,null,null,sortOrder);
+        } else if(id == FAVORITE_MOVIES_LOADER){
+
+            Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
+
+            return new CursorLoader(getActivity(),favoriteMoviesUri,FAVORITE_MOVIES_COLUMNS,null,null,null);
+        }
+
+
+        return null;
     }
 
     @Override
