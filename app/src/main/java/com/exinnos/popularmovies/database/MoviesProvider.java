@@ -1,4 +1,4 @@
-package com.exinnos.popularmovies;
+package com.exinnos.popularmovies.database;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;

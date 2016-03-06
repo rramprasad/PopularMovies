@@ -28,7 +28,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <provider
-            android:name=".MoviesProvider"
+            android:name=".database.MoviesProvider"
             android:authorities="com.exinnos.popularmovies"
             android:enabled="true"
             android:exported="false"/>
