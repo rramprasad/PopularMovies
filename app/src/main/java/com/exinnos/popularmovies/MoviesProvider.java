@@ -2,6 +2,7 @@ package com.exinnos.popularmovies;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
@@ -10,21 +11,75 @@ import android.net.Uri;
 import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.database.MoviesDbHelper;
 
+
 public class MoviesProvider extends ContentProvider {
 
+    private static final int URI_POPULAR_MOVIES = 100;
+    private static final int URI_HIGHEST_RATED_MOVIES = 200;
+    private static final int URI_FAVORITE_MOVIES = 300;
+    private static final int URI_MOVIES = 400;
+    private static final int URI_MOVIE_REVIEWS = 500;
+    private static final int URI_MOVIE_TRAILERS = 600;
+
     private MoviesDbHelper moviesDbHelper;
-    private static final SQLiteQueryBuilder sqLiteQueryBuilder;
+    private static final SQLiteQueryBuilder sqLitePopularMoviesQueryBuilder;
+    private static final SQLiteQueryBuilder sqLiteHighestRatedMoviesQueryBuilder;
+    private static final SQLiteQueryBuilder sqLiteFavoriteMoviesQueryBuilder;
+    private static final SQLiteQueryBuilder sqLiteMovieReviewsQueryBuilder;
+    private static final SQLiteQueryBuilder sqLiteMovieTrailersQueryBuilder;
+
+    private UriMatcher uriMatcher = buildUriMatcher();
 
     public MoviesProvider() {
     }
 
-
     static {
-        sqLiteQueryBuilder = new SQLiteQueryBuilder();
 
-        sqLiteQueryBuilder.setTables(MoviesContract.PopularMoviesEntry.TABLE_NAME + " INNER JOIN " + MoviesContract.MoviesEntry.TABLE_NAME +
+        // Popular movies table Join
+        sqLitePopularMoviesQueryBuilder = new SQLiteQueryBuilder();
+        sqLitePopularMoviesQueryBuilder.setTables(MoviesContract.PopularMoviesEntry.TABLE_NAME + " INNER JOIN " + MoviesContract.MoviesEntry.TABLE_NAME +
                 " ON " + MoviesContract.PopularMoviesEntry.TABLE_NAME + "." + MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID +
                 "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
+
+
+        // Highest rated movies table Join
+        sqLiteHighestRatedMoviesQueryBuilder = new SQLiteQueryBuilder();
+        sqLiteHighestRatedMoviesQueryBuilder.setTables(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + " INNER JOIN "+
+                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "." + MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID+
+                "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
+
+        // Favorite movies table Join
+        sqLiteFavoriteMoviesQueryBuilder = new SQLiteQueryBuilder();
+        sqLiteFavoriteMoviesQueryBuilder.setTables(MoviesContract.FavoriteMoviesEntry.TABLE_NAME + " INNER JOIN "+
+                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID+
+                "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
+
+        // Movie reviews table Join
+        sqLiteMovieReviewsQueryBuilder = new SQLiteQueryBuilder();
+        sqLiteMovieReviewsQueryBuilder.setTables(MoviesContract.MovieReviewsEntry.TABLE_NAME + " INNER JOIN "+
+                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.MovieReviewsEntry.TABLE_NAME + "." + MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID+
+                "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
+
+        // Movie trailers table Join
+        sqLiteMovieTrailersQueryBuilder = new SQLiteQueryBuilder();
+        sqLiteMovieTrailersQueryBuilder.setTables(MoviesContract.MovieTrailersEntry.TABLE_NAME + " INNER JOIN "+
+                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.MovieTrailersEntry.TABLE_NAME + "." + MoviesContract.MovieTrailersEntry.COLUMN_MOVIE_ID+
+                "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
+    }
+
+    // Match Uri
+    private UriMatcher buildUriMatcher() {
+
+        UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_POPULAR_MOVIES, URI_POPULAR_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_HIGHEST_RATED_MOVIES, URI_HIGHEST_RATED_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_FAVORITE_MOVIES, URI_FAVORITE_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES, URI_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIE_REVIEWS, URI_MOVIE_REVIEWS);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIE_TRAILERS, URI_MOVIE_TRAILERS);
+
+        return uriMatcher;
     }
 
     @Override
@@ -58,9 +113,32 @@ public class MoviesProvider extends ContentProvider {
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
         SQLiteDatabase readableDatabase = moviesDbHelper.getReadableDatabase();
-        //return readableDatabase.query(MoviesContract.PopularMoviesEntry.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder);
 
-        return sqLiteQueryBuilder.query(readableDatabase,projection,selection,selectionArgs,null,null,sortOrder);
+        Cursor cursor = null;
+
+        switch (uriMatcher.match(uri)){
+
+            case URI_POPULAR_MOVIES:
+                cursor = sqLitePopularMoviesQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
+            case URI_HIGHEST_RATED_MOVIES:
+                cursor = sqLiteHighestRatedMoviesQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
+            case URI_FAVORITE_MOVIES:
+                cursor = sqLiteFavoriteMoviesQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
+            case URI_MOVIE_REVIEWS:
+                cursor = sqLiteMovieReviewsQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
+            case URI_MOVIE_TRAILERS:
+                cursor = sqLiteMovieTrailersQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+        }
+        return cursor;
     }
 
     @Override
