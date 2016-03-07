@@ -27,11 +27,24 @@
             android:label="@string/title_activity_movie_detail"
             android:theme="@style/AppTheme.NoActionBar" />
 
+        <!-- Movies content provider -->
         <provider
             android:name=".database.MoviesProvider"
             android:authorities="com.exinnos.popularmovies"
             android:enabled="true"
-            android:exported="false"/>
+            android:exported="false"
+            android:syncable="true"/>
+
+
+        <!-- Service for Authenticator to bound with Sync Adapter framework -->
+        <service android:name=".sync.MoviesAuthenticatorService">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator"/>
+            </intent-filter>
+            <meta-data android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/movies_authenticator"/>
+        </service>
+
     </application>
 
 </manifest>
