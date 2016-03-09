@@ -7,4 +7,5 @@
     <string name="release_date">\t(Release)</string>
     <string name="rating">\t(Rating)</string>
     <string name="movies_sync_account_type">movies.exinnos.com</string>
+    <string name="movies_content_authority">com.exinnos.popularmovies</string>
 </resources>
