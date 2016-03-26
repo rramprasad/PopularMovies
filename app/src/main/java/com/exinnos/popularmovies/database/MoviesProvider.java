@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 
@@ -15,11 +16,20 @@ import com.exinnos.popularmovies.database.MoviesDbHelper;
 public class MoviesProvider extends ContentProvider {
 
     private static final int URI_POPULAR_MOVIES = 100;
+    private static final int URI_POPULAR_MOVIES_WITH_ID = 101;
+
     private static final int URI_HIGHEST_RATED_MOVIES = 200;
+    private static final int URI_HIGHEST_RATED_MOVIES_WITH_ID = 201;
+
     private static final int URI_FAVORITE_MOVIES = 300;
+
     private static final int URI_MOVIES = 400;
+    private static final int URI_MOVIES_WITH_ID = 401;
+
     private static final int URI_MOVIE_REVIEWS = 500;
+
     private static final int URI_MOVIE_TRAILERS = 600;
+
 
     private MoviesDbHelper moviesDbHelper;
     private static final SQLiteQueryBuilder sqLitePopularMoviesQueryBuilder;
@@ -72,10 +82,13 @@ public class MoviesProvider extends ContentProvider {
 
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_POPULAR_MOVIES, URI_POPULAR_MOVIES);
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_HIGHEST_RATED_MOVIES, URI_HIGHEST_RATED_MOVIES);
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_FAVORITE_MOVIES, URI_FAVORITE_MOVIES);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES, URI_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES+"/#",URI_MOVIES_WITH_ID);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_POPULAR_MOVIES, URI_POPULAR_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_POPULAR_MOVIES+"/#", URI_POPULAR_MOVIES_WITH_ID);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_HIGHEST_RATED_MOVIES, URI_HIGHEST_RATED_MOVIES);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_HIGHEST_RATED_MOVIES+"/#", URI_HIGHEST_RATED_MOVIES_WITH_ID);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_FAVORITE_MOVIES, URI_FAVORITE_MOVIES);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIE_REVIEWS, URI_MOVIE_REVIEWS);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIE_TRAILERS, URI_MOVIE_TRAILERS);
 
@@ -90,15 +103,68 @@ public class MoviesProvider extends ContentProvider {
 
     @Override
     public String getType(Uri uri) {
-        // TODO: Implement this to handle requests for the MIME type of the data
-        // at the given URI.
-        throw new UnsupportedOperationException("Not yet implemented");
+
+        switch (uriMatcher.match(uri)){
+            case URI_MOVIES:
+                return MoviesContract.MoviesEntry.CONTENT_TYPE;
+            case URI_MOVIES_WITH_ID:
+                return MoviesContract.MoviesEntry.CONTENT_ITEM_TYPE;
+            case URI_POPULAR_MOVIES:
+                return MoviesContract.PopularMoviesEntry.CONTENT_TYPE;
+            case URI_POPULAR_MOVIES_WITH_ID:
+                return MoviesContract.PopularMoviesEntry.CONTENT_ITEM_TYPE;
+            case URI_HIGHEST_RATED_MOVIES:
+                return MoviesContract.HighestRatedMoviesEntry.CONTENT_TYPE;
+            case URI_HIGHEST_RATED_MOVIES_WITH_ID:
+                return MoviesContract.HighestRatedMoviesEntry.CONTENT_ITEM_TYPE;
+            case URI_FAVORITE_MOVIES:
+                return MoviesContract.FavoriteMoviesEntry.CONTENT_TYPE;
+            case URI_MOVIE_REVIEWS:
+                return MoviesContract.MovieReviewsEntry.CONTENT_TYPE;
+            case URI_MOVIE_TRAILERS:
+                return MoviesContract.MovieTrailersEntry.CONTENT_TYPE;
+            default:
+                throw new UnsupportedOperationException("Unknown uri"+uri);
+        }
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues values) {
-        // TODO: Implement this to handle requests to insert a new row.
-        throw new UnsupportedOperationException("Not yet implemented");
+    public Uri insert(Uri uri, ContentValues contentValues) throws SQLiteException{
+        SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
+
+        Uri returnUri = null;
+        switch(uriMatcher.match(uri)){
+            case URI_MOVIES:
+            {
+                long rowId = writableDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+            case URI_POPULAR_MOVIES:
+            {
+                long rowId = writableDatabase.insert(MoviesContract.PopularMoviesEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+            case URI_HIGHEST_RATED_MOVIES: {
+                long rowId = writableDatabase.insert(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+            case URI_FAVORITE_MOVIES: {
+                long rowId = writableDatabase.insert(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+            case URI_MOVIE_REVIEWS: {
+                long rowId = writableDatabase.insert(MoviesContract.MovieReviewsEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+            case URI_MOVIE_TRAILERS: {
+                long rowId = writableDatabase.insert(MoviesContract.MovieTrailersEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+        }
+
+        getContext().getContentResolver().notifyChange(uri,null);
+
+        return returnUri;
     }
 
     @Override
@@ -118,11 +184,27 @@ public class MoviesProvider extends ContentProvider {
 
         switch (uriMatcher.match(uri)){
 
+            case URI_MOVIES:
+                cursor = readableDatabase.query(MoviesContract.MoviesEntry.TABLE_NAME,null,null,null,null,null,null);
+                break;
+
+            case URI_MOVIES_WITH_ID:
+                cursor = readableDatabase.query(MoviesContract.MoviesEntry.TABLE_NAME,null,selection,selectionArgs,null,null,null);
+                break;
+
             case URI_POPULAR_MOVIES:
                 cursor = sqLitePopularMoviesQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
 
+            case URI_POPULAR_MOVIES_WITH_ID:
+                cursor = sqLitePopularMoviesQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
             case URI_HIGHEST_RATED_MOVIES:
+                cursor = sqLiteHighestRatedMoviesQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
+                break;
+
+            case URI_HIGHEST_RATED_MOVIES_WITH_ID:
                 cursor = sqLiteHighestRatedMoviesQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
 
@@ -138,13 +220,49 @@ public class MoviesProvider extends ContentProvider {
                 cursor = sqLiteMovieTrailersQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
         }
+        cursor.setNotificationUri(getContext().getContentResolver(),uri);
         return cursor;
     }
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection,
+    public int update(Uri uri, ContentValues contentValues, String selection,
                       String[] selectionArgs) {
-        // TODO: Implement this to handle requests to update one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+        SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
+
+        int updatedRowsCount = 0;
+        switch(uriMatcher.match(uri)){
+            case URI_MOVIES:
+            {
+                updatedRowsCount = writableDatabase.update(MoviesContract.MoviesEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                break;
+            }
+            case URI_POPULAR_MOVIES:
+            {
+                updatedRowsCount = writableDatabase.update(MoviesContract.PopularMoviesEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                break;
+            }
+            case URI_HIGHEST_RATED_MOVIES: {
+                updatedRowsCount = writableDatabase.update(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                break;
+            }
+            case URI_FAVORITE_MOVIES: {
+                updatedRowsCount = writableDatabase.update(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                break;
+            }
+            case URI_MOVIE_REVIEWS: {
+                updatedRowsCount = writableDatabase.update(MoviesContract.MovieReviewsEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                break;
+            }
+            case URI_MOVIE_TRAILERS: {
+                updatedRowsCount = writableDatabase.update(MoviesContract.MovieTrailersEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                break;
+            }
+        }
+
+        if(updatedRowsCount > 0){
+            getContext().getContentResolver().notifyChange(uri,null);
+        }
+
+        return updatedRowsCount;
     }
 }
