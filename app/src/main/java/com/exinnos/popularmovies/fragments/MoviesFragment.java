@@ -18,6 +18,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -31,6 +34,7 @@ import com.exinnos.popularmovies.data.MoviesData;
 import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.database.MoviesDbHelper;
 import com.exinnos.popularmovies.network.MoviesAPIService;
+import com.exinnos.popularmovies.sync.MoviesSyncAdapter;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
@@ -102,6 +106,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -131,7 +136,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesAdapter = new MoviesAdapter(getActivity(), null, new MoviesAdapter.OnMovieClickListener() {
             @Override
             public void onMovieClicked(int movieId) {
-
+                //MoviesSyncAdapter.initializeSyncAdapter(getActivity());
             }
         });
 
@@ -141,6 +146,22 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         return rootView;
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.movies_fragment,menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int itemId = item.getItemId();
+
+        switch (itemId){
+            case R.id.menu_refresh:
+                MoviesSyncAdapter.syncImmediately(getActivity());
+                break;
+        }
+        return true;
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -155,10 +176,11 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         moviesTypeSpinner.setPopupBackgroundResource(R.color.colorPrimary);
 
+
+        // On spinner item change listener
         moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-
                 switch (position) {
                     case 0:
                         //loadMovies(SORT_ORDER_POPULARITY_DESC);
@@ -181,6 +203,8 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             }
         });
 
+
+        // Load movies on startup
         int selectedItemPosition = moviesTypeSpinner.getSelectedItemPosition();
         switch (selectedItemPosition) {
             case 0:
@@ -204,23 +228,23 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
      *
      * @param sortby
      */
-    private void loadMovies(String sortby) {
+    /*private void loadMovies(String sortby) {
 
-        /*if (AppUtilities.isNetworkConnected(getActivity())) {
+        *//*if (AppUtilities.isNetworkConnected(getActivity())) {
             fetchMoviesFromServer(sortby);
         } else {
             Snackbar.make(rootView, getActivity().getResources().getString(R.string.network_connection_not_available), Snackbar.LENGTH_SHORT).show();
-        }*/
+        }*//*
 
         getLoaderManager().initLoader(POPULAR_MOVIES_LOADER, null, this);
-    }
+    }*/
 
     /**
      * Fetch movies data from server.
      *
      * @param sortby
      */
-    private void fetchMoviesFromServer(String sortby) {
+   /* private void fetchMoviesFromServer(String sortby) {
 
         OkHttpClient httpClient = new OkHttpClient.Builder().addNetworkInterceptor(new StethoInterceptor()).build();
 
@@ -257,9 +281,9 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
                 Log.i(LOG_TAG, "Retrofit movies service on failure " + t.getMessage().toString());
             }
         });
-    }
+    }*/
 
-    private void storeOnLocalDatabase(List<Movie> moviesList) {
+    /*private void storeOnLocalDatabase(List<Movie> moviesList) {
 
         MoviesDbHelper moviesDbHelper = new MoviesDbHelper(getActivity());
         SQLiteDatabase moviesDatabase = moviesDbHelper.getWritableDatabase();
@@ -301,7 +325,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             }
         }
         moviesDatabase.close();
-    }
+    }*/
 
     @Override
     public void onAttach(Context context) {
