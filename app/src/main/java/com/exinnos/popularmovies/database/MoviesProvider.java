@@ -1,13 +1,16 @@
 package com.exinnos.popularmovies.database;
 
 import android.content.ContentProvider;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.util.Log;
 
 import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.database.MoviesDbHelper;
@@ -29,6 +32,7 @@ public class MoviesProvider extends ContentProvider {
     private static final int URI_MOVIE_REVIEWS = 500;
 
     private static final int URI_MOVIE_TRAILERS = 600;
+    private static final String LOG_TAG = MoviesProvider.class.getSimpleName();
 
 
     private MoviesDbHelper moviesDbHelper;
@@ -165,6 +169,121 @@ public class MoviesProvider extends ContentProvider {
         getContext().getContentResolver().notifyChange(uri,null);
 
         return returnUri;
+    }
+
+    @Override
+    public int bulkInsert(Uri uri, ContentValues[] contentValues) {
+
+        SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
+
+        switch(uriMatcher.match(uri)){
+            case URI_MOVIES:
+            {
+                writableDatabase.beginTransaction();
+
+                int rowsAdded = 0;
+
+                try{
+                    for(ContentValues value : contentValues){
+                        int affectedRowsCount = writableDatabase.update(MoviesContract.MoviesEntry.TABLE_NAME, value, MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID + " = ?", new String[]{value.getAsString(MoviesContract.MoviesEntry._ID)});
+
+                        if(affectedRowsCount == 0){
+                            long rowId = writableDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, value);
+
+                            if(rowId > 0){
+                                rowsAdded++;
+                            }
+                        }
+                    }
+                    writableDatabase.setTransactionSuccessful();
+                }
+                catch (SQLException exception){
+                    Log.d(LOG_TAG,"SQLException =>"+exception.getMessage());
+                }
+                finally {
+                    writableDatabase.endTransaction();
+                }
+
+                getContext().getContentResolver().notifyChange(uri,null);
+
+                return rowsAdded;
+            }
+            case URI_POPULAR_MOVIES:
+            {
+                writableDatabase.beginTransaction();
+
+                int rowsAdded = 0;
+
+                try{
+                    for(ContentValues value : contentValues){
+                        int affectedRowsCount = writableDatabase.update(MoviesContract.PopularMoviesEntry.TABLE_NAME, value, MoviesContract.PopularMoviesEntry.TABLE_NAME + "." + MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{value.getAsString(MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID)});
+
+                        if(affectedRowsCount == 0){
+                            long rowId = writableDatabase.insert(MoviesContract.PopularMoviesEntry.TABLE_NAME, null, value);
+
+                            if(rowId > 0){
+                                rowsAdded++;
+                            }
+                        }
+                    }
+                    writableDatabase.setTransactionSuccessful();
+                }
+                catch (SQLException exception){
+                    Log.d(LOG_TAG,"SQLException =>"+exception.getMessage());
+                }
+                finally {
+                    writableDatabase.endTransaction();
+                }
+
+                getContext().getContentResolver().notifyChange(uri,null);
+
+                return rowsAdded;
+            }
+            case URI_HIGHEST_RATED_MOVIES: {
+                writableDatabase.beginTransaction();
+
+                int rowsAdded = 0;
+
+                try{
+                    for(ContentValues value : contentValues){
+                        int affectedRowsCount = writableDatabase.update(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME, value, MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "." + MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{value.getAsString(MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID)});
+
+                        if(affectedRowsCount == 0){
+                            long rowId = writableDatabase.insert(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME, null, value);
+
+                            if(rowId > 0){
+                                rowsAdded++;
+                            }
+                        }
+                    }
+                    writableDatabase.setTransactionSuccessful();
+                }
+                catch (SQLException exception){
+                    Log.d(LOG_TAG,"SQLException =>"+exception.getMessage());
+                }
+                finally {
+                    writableDatabase.endTransaction();
+                }
+
+                getContext().getContentResolver().notifyChange(uri,null);
+
+                return rowsAdded;
+            }
+            case URI_FAVORITE_MOVIES: {
+                //long rowId = writableDatabase.insert(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+            case URI_MOVIE_REVIEWS: {
+                //long rowId = writableDatabase.insert(MoviesContract.MovieReviewsEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+            case URI_MOVIE_TRAILERS: {
+                //long rowId = writableDatabase.insert(MoviesContract.MovieTrailersEntry.TABLE_NAME, null, contentValues);
+                break;
+            }
+        }
+
+        return 0;
     }
 
     @Override
