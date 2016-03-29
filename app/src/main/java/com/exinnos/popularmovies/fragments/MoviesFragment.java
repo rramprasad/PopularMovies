@@ -136,7 +136,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesAdapter = new MoviesAdapter(getActivity(), null, new MoviesAdapter.OnMovieClickListener() {
             @Override
             public void onMovieClicked(int movieId) {
-                //MoviesSyncAdapter.initializeSyncAdapter(getActivity());
+                mListener.onMovieSelected(movieId);
             }
         });
 
