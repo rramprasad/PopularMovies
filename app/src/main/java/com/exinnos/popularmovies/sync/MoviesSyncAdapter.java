@@ -70,7 +70,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
     @Override
     public void onPerformSync(Account account, Bundle bundle, String authority, ContentProviderClient contentProviderClient, SyncResult syncResult) {
-        Log.d(LOG_TAG,"Sync started");
+        Log.d("popular","Sync started");
 
         syncPopularMovies();
         syncHighestRatedMovies();
@@ -83,6 +83,8 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
      */
     private void syncPopularMovies() {
 
+        Log.d("popular", "sync popular movies");
+
         OkHttpClient httpClient = new OkHttpClient.Builder().addNetworkInterceptor(new StethoInterceptor()).build();
 
         Retrofit retrofit = new Retrofit.Builder()
@@ -93,20 +95,25 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
         MoviesAPIService moviesAPIService = retrofit.create(MoviesAPIService.class);
 
-        Call<MoviesData> moviesDataCall = moviesAPIService.fetchMoviesData(SORT_ORDER_POPULARITY_DESC, BuildConfig.THE_MOVIE_DB_API_KEY);
+        Call<MoviesData> moviesDataCall = moviesAPIService.fetchPopularMoviesData(BuildConfig.THE_MOVIE_DB_API_KEY);
 
         moviesDataCall.enqueue(new Callback<MoviesData>() {
             @Override
             public void onResponse(Call<MoviesData> call, Response<MoviesData> response) {
 
-                Log.i(LOG_TAG, "on success " + response.isSuccess());
+                Log.d("popular", "onResponse of popular movies sync");
 
                 if (response != null) {
                     List<Movie> moviesList = response.body().getMovies();
 
-                    Log.i(LOG_TAG, "moviesList.size => " + moviesList.size());
+                    Log.d("popular",  "moviesList.size => " + moviesList.size());
 
-                    for (Movie movie : moviesList) {
+                    ContentValues[] cvv1 = new ContentValues[moviesList.size()];
+                    ContentValues[] cvv2 = new ContentValues[moviesList.size()];
+
+                    for (int i = 0; i < moviesList.size(); i++) {
+
+                        Movie movie = moviesList.get(i);
 
                         ContentValues moviesContentValues = new ContentValues();
                         moviesContentValues.put(MoviesContract.MoviesEntry._ID, movie.getId());
@@ -122,40 +129,24 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         moviesContentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE, movie.getVoteAverage());
                         moviesContentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT, movie.getVoteCount());
 
-                        String movieIdString = String.valueOf(movie.getId());
-
-                        Cursor moviesCursor = mContentResolver.query(MoviesContract.MoviesEntry.buildMoviesWithIdUri(movie.getId()), null, MoviesContract.MoviesEntry.TABLE_NAME+"."+MoviesContract.MoviesEntry._ID + " = ?", new String[]{movieIdString}, null);
-
-                        Log.i(LOG_TAG, "moviesCursor.getCount() => " +moviesCursor.getCount());
-
-                        if(moviesCursor.getCount() > 0){
-                            mContentResolver.update(MoviesContract.MoviesEntry.CONTENT_URI, moviesContentValues, MoviesContract.MoviesEntry._ID + "= ?",new String[]{movieIdString});
-                        }
-                        else{
-                            mContentResolver.insert(MoviesContract.MoviesEntry.CONTENT_URI, moviesContentValues);
-                        }
-
-                        // Store on popular movies table
-                        Cursor popularMoviesCursor = mContentResolver.query(MoviesContract.PopularMoviesEntry.buildPopularMoviesWithIdUri(movie.getId()), null, MoviesContract.PopularMoviesEntry.TABLE_NAME+"."+MoviesContract.PopularMoviesEntry._ID + " = ?", new String[]{movieIdString}, null);
+                        cvv1[i] = moviesContentValues;
 
                         ContentValues popularMoviesContentValues = new ContentValues();
                         popularMoviesContentValues.put(MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID, movie.getId());
 
-                        Log.i(LOG_TAG, "popularMoviesCursor.getCount() => " +popularMoviesCursor.getCount());
-
-                        if(popularMoviesCursor.getCount() > 0){
-                            mContentResolver.update(MoviesContract.PopularMoviesEntry.CONTENT_URI, popularMoviesContentValues, MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + "= ?",new String[]{movieIdString});
-                        }
-                        else{
-                            mContentResolver.insert(MoviesContract.PopularMoviesEntry.CONTENT_URI,popularMoviesContentValues);
-                        }
+                        cvv2[i] = popularMoviesContentValues;
                     }
+
+                    mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI,cvv1);
+
+                    mContentResolver.bulkInsert(MoviesContract.PopularMoviesEntry.CONTENT_URI,cvv2);
+
                 }
             }
 
             @Override
             public void onFailure(Call<MoviesData> call, Throwable t) {
-                Log.i(LOG_TAG, "Retrofit movies service on failure " + t.getMessage());
+                Log.d("popular", "Retrofit movies service on failure " + t.getMessage());
             }
         });
     }
@@ -178,7 +169,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
         MoviesAPIService moviesAPIService = retrofit.create(MoviesAPIService.class);
 
-        Call<MoviesData> moviesDataCall = moviesAPIService.fetchMoviesData(SORT_ORDER_VOTE_AVERAGE_DESC, BuildConfig.THE_MOVIE_DB_API_KEY);
+        Call<MoviesData> moviesDataCall = moviesAPIService.fetchHighestRatedMoviesData(BuildConfig.THE_MOVIE_DB_API_KEY);
 
         moviesDataCall.enqueue(new Callback<MoviesData>() {
             @Override
@@ -189,9 +180,14 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                 if (response != null) {
                     List<Movie> moviesList = response.body().getMovies();
 
-                    Log.i(LOG_TAG, "moviesList.size => " + moviesList.size());
+                    Log.i(LOG_TAG, "Highest rated moviesList.size => " + moviesList.size());
 
-                    for (Movie movie : moviesList) {
+                    ContentValues[] cvv1 = new ContentValues[moviesList.size()];
+                    ContentValues[] cvv2 = new ContentValues[moviesList.size()];
+
+                    for (int i = 0; i < moviesList.size() ; i++) {
+
+                         Movie movie = moviesList.get(i);
 
                         ContentValues moviesContentValues = new ContentValues();
                         moviesContentValues.put(MoviesContract.MoviesEntry._ID, movie.getId());
@@ -207,34 +203,41 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         moviesContentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE, movie.getVoteAverage());
                         moviesContentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT, movie.getVoteCount());
 
-                        String movieIdString = String.valueOf(movie.getId());
+                        /*String movieIdString = String.valueOf(movie.getId());
 
                         Cursor moviesCursor = mContentResolver.query(MoviesContract.MoviesEntry.buildMoviesWithIdUri(movie.getId()), null, MoviesContract.MoviesEntry.TABLE_NAME+"."+MoviesContract.MoviesEntry._ID + " = ?", new String[]{movieIdString}, null);
 
-                        Log.i(LOG_TAG, "moviesCursor.getCount() => " +moviesCursor.getCount());
+                        Log.i(LOG_TAG, "Highest rated moviesCursor.getCount() => " +moviesCursor.getCount());
 
                         if(moviesCursor.getCount() > 0){
                             mContentResolver.update(MoviesContract.MoviesEntry.CONTENT_URI, moviesContentValues, MoviesContract.MoviesEntry._ID + "= ?",new String[]{movieIdString});
                         }
                         else{
                             mContentResolver.insert(MoviesContract.MoviesEntry.CONTENT_URI, moviesContentValues);
-                        }
+                        }*/
+
+                        cvv1[i] = moviesContentValues;
 
                         // Store on highest rated movies table
-                        Cursor highestRatedMoviesCursor = mContentResolver.query(MoviesContract.HighestRatedMoviesEntry.buildHighestRatedMoviesWithIdUri(movie.getId()), null, MoviesContract.HighestRatedMoviesEntry.TABLE_NAME+"."+MoviesContract.HighestRatedMoviesEntry._ID + " = ?", new String[]{movieIdString}, null);
+                        //Cursor highestRatedMoviesCursor = mContentResolver.query(MoviesContract.HighestRatedMoviesEntry.buildHighestRatedMoviesWithIdUri(movie.getId()), null, MoviesContract.HighestRatedMoviesEntry.TABLE_NAME+"."+MoviesContract.HighestRatedMoviesEntry._ID + " = ?", new String[]{movieIdString}, null);
 
                         ContentValues highestRatedMoviesContentValues = new ContentValues();
                         highestRatedMoviesContentValues.put(MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID, movie.getId());
 
-                        Log.i(LOG_TAG, "highestRatedMoviesCursor.getCount() => " +highestRatedMoviesCursor.getCount());
+                        cvv2[i] = highestRatedMoviesContentValues;
+
+                        /*Log.i(LOG_TAG, "Highest rated highestRatedMoviesCursor.getCount() => " +highestRatedMoviesCursor.getCount());
 
                         if(highestRatedMoviesCursor.getCount() > 0){
                             mContentResolver.update(MoviesContract.HighestRatedMoviesEntry.CONTENT_URI, highestRatedMoviesContentValues, MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID + "= ?",new String[]{movieIdString});
                         }
                         else{
                             mContentResolver.insert(MoviesContract.HighestRatedMoviesEntry.CONTENT_URI,highestRatedMoviesContentValues);
-                        }
+                        }*/
                     }
+
+                    mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI,cvv1);
+                    mContentResolver.bulkInsert(MoviesContract.HighestRatedMoviesEntry.CONTENT_URI,cvv2);
                 }
             }
 
@@ -253,6 +256,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
      */
     public static Account getSyncAccount(Context context){
 
+        Log.d("popular", "getSyncAccount");
         // instance of account manager
         AccountManager accountManager = (AccountManager)context.getSystemService(Context.ACCOUNT_SERVICE);
 
@@ -280,6 +284,8 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
      */
     private static void onAccountCreated(Account account, Context context) {
 
+        Log.d("popular", "onAccountCreated");
+
         // Configure periodic sync with SYNC_INTERVAL,SYNC_FLEX_TIME
         MoviesSyncAdapter.configurePeriodicExecution(context,SYNC_INTERVAL,SYNC_FLEX_TIME);
 
@@ -294,6 +300,8 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
      * @param context
      */
     public static void syncImmediately(Context context) {
+
+        Log.d("popular", "syncImmediately");
 
         Account syncAccount = getSyncAccount(context);
 
