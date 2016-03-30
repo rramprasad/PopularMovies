@@ -1,7 +1,6 @@
 package com.exinnos.popularmovies.database;
 
 import android.content.ContentProvider;
-import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
@@ -11,9 +10,6 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.util.Log;
-
-import com.exinnos.popularmovies.database.MoviesContract;
-import com.exinnos.popularmovies.database.MoviesDbHelper;
 
 
 public class MoviesProvider extends ContentProvider {
@@ -58,26 +54,26 @@ public class MoviesProvider extends ContentProvider {
 
         // Highest rated movies table Join
         sqLiteHighestRatedMoviesQueryBuilder = new SQLiteQueryBuilder();
-        sqLiteHighestRatedMoviesQueryBuilder.setTables(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + " INNER JOIN "+
-                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "." + MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID+
+        sqLiteHighestRatedMoviesQueryBuilder.setTables(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + " INNER JOIN " +
+                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "." + MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID +
                 "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
 
         // Favorite movies table Join
         sqLiteFavoriteMoviesQueryBuilder = new SQLiteQueryBuilder();
-        sqLiteFavoriteMoviesQueryBuilder.setTables(MoviesContract.FavoriteMoviesEntry.TABLE_NAME + " INNER JOIN "+
-                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID+
+        sqLiteFavoriteMoviesQueryBuilder.setTables(MoviesContract.FavoriteMoviesEntry.TABLE_NAME + " INNER JOIN " +
+                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID +
                 "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
 
         // Movie reviews table Join
         sqLiteMovieReviewsQueryBuilder = new SQLiteQueryBuilder();
-        sqLiteMovieReviewsQueryBuilder.setTables(MoviesContract.MovieReviewsEntry.TABLE_NAME + " INNER JOIN "+
-                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.MovieReviewsEntry.TABLE_NAME + "." + MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID+
+        sqLiteMovieReviewsQueryBuilder.setTables(MoviesContract.MovieReviewsEntry.TABLE_NAME + " INNER JOIN " +
+                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.MovieReviewsEntry.TABLE_NAME + "." + MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID +
                 "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
 
         // Movie trailers table Join
         sqLiteMovieTrailersQueryBuilder = new SQLiteQueryBuilder();
-        sqLiteMovieTrailersQueryBuilder.setTables(MoviesContract.MovieTrailersEntry.TABLE_NAME + " INNER JOIN "+
-                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.MovieTrailersEntry.TABLE_NAME + "." + MoviesContract.MovieTrailersEntry.COLUMN_MOVIE_ID+
+        sqLiteMovieTrailersQueryBuilder.setTables(MoviesContract.MovieTrailersEntry.TABLE_NAME + " INNER JOIN " +
+                MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.MovieTrailersEntry.TABLE_NAME + "." + MoviesContract.MovieTrailersEntry.COLUMN_MOVIE_ID +
                 "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
     }
 
@@ -87,11 +83,11 @@ public class MoviesProvider extends ContentProvider {
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES, URI_MOVIES);
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES+"/#",URI_MOVIES_WITH_ID);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIES + "/#", URI_MOVIES_WITH_ID);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_POPULAR_MOVIES, URI_POPULAR_MOVIES);
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_POPULAR_MOVIES+"/#", URI_POPULAR_MOVIES_WITH_ID);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_POPULAR_MOVIES + "/#", URI_POPULAR_MOVIES_WITH_ID);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_HIGHEST_RATED_MOVIES, URI_HIGHEST_RATED_MOVIES);
-        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_HIGHEST_RATED_MOVIES+"/#", URI_HIGHEST_RATED_MOVIES_WITH_ID);
+        uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_HIGHEST_RATED_MOVIES + "/#", URI_HIGHEST_RATED_MOVIES_WITH_ID);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_FAVORITE_MOVIES, URI_FAVORITE_MOVIES);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIE_REVIEWS, URI_MOVIE_REVIEWS);
         uriMatcher.addURI(MoviesContract.CONTENT_AUTHORITY, MoviesContract.PATH_MOVIE_TRAILERS, URI_MOVIE_TRAILERS);
@@ -108,7 +104,7 @@ public class MoviesProvider extends ContentProvider {
     @Override
     public String getType(Uri uri) {
 
-        switch (uriMatcher.match(uri)){
+        switch (uriMatcher.match(uri)) {
             case URI_MOVIES:
                 return MoviesContract.MoviesEntry.CONTENT_TYPE;
             case URI_MOVIES_WITH_ID:
@@ -128,23 +124,21 @@ public class MoviesProvider extends ContentProvider {
             case URI_MOVIE_TRAILERS:
                 return MoviesContract.MovieTrailersEntry.CONTENT_TYPE;
             default:
-                throw new UnsupportedOperationException("Unknown uri"+uri);
+                throw new UnsupportedOperationException("Unknown uri" + uri);
         }
     }
 
     @Override
-    public Uri insert(Uri uri, ContentValues contentValues) throws SQLiteException{
+    public Uri insert(Uri uri, ContentValues contentValues) throws SQLiteException {
         SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
 
         Uri returnUri = null;
-        switch(uriMatcher.match(uri)){
-            case URI_MOVIES:
-            {
+        switch (uriMatcher.match(uri)) {
+            case URI_MOVIES: {
                 long rowId = writableDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, contentValues);
                 break;
             }
-            case URI_POPULAR_MOVIES:
-            {
+            case URI_POPULAR_MOVIES: {
                 long rowId = writableDatabase.insert(MoviesContract.PopularMoviesEntry.TABLE_NAME, null, contentValues);
                 break;
             }
@@ -166,7 +160,7 @@ public class MoviesProvider extends ContentProvider {
             }
         }
 
-        getContext().getContentResolver().notifyChange(uri,null);
+        getContext().getContentResolver().notifyChange(uri, null);
 
         return returnUri;
     }
@@ -176,66 +170,60 @@ public class MoviesProvider extends ContentProvider {
 
         SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
 
-        switch(uriMatcher.match(uri)){
-            case URI_MOVIES:
-            {
+        switch (uriMatcher.match(uri)) {
+            case URI_MOVIES: {
                 writableDatabase.beginTransaction();
 
                 int rowsAdded = 0;
 
-                try{
-                    for(ContentValues value : contentValues){
+                try {
+                    for (ContentValues value : contentValues) {
                         int affectedRowsCount = writableDatabase.update(MoviesContract.MoviesEntry.TABLE_NAME, value, MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID + " = ?", new String[]{value.getAsString(MoviesContract.MoviesEntry._ID)});
 
-                        if(affectedRowsCount == 0){
+                        if (affectedRowsCount == 0) {
                             long rowId = writableDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, value);
 
-                            if(rowId > 0){
+                            if (rowId > 0) {
                                 rowsAdded++;
                             }
                         }
                     }
                     writableDatabase.setTransactionSuccessful();
-                }
-                catch (SQLException exception){
-                    Log.d(LOG_TAG,"SQLException =>"+exception.getMessage());
-                }
-                finally {
+                } catch (SQLException exception) {
+                    Log.d(LOG_TAG, "SQLException =>" + exception.getMessage());
+                } finally {
                     writableDatabase.endTransaction();
                 }
 
-                getContext().getContentResolver().notifyChange(uri,null);
+                getContext().getContentResolver().notifyChange(uri, null);
 
                 return rowsAdded;
             }
-            case URI_POPULAR_MOVIES:
-            {
+            case URI_POPULAR_MOVIES: {
                 writableDatabase.beginTransaction();
 
                 int rowsAdded = 0;
 
-                try{
-                    for(ContentValues value : contentValues){
+                try {
+                    for (ContentValues value : contentValues) {
                         int affectedRowsCount = writableDatabase.update(MoviesContract.PopularMoviesEntry.TABLE_NAME, value, MoviesContract.PopularMoviesEntry.TABLE_NAME + "." + MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{value.getAsString(MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID)});
 
-                        if(affectedRowsCount == 0){
+                        if (affectedRowsCount == 0) {
                             long rowId = writableDatabase.insert(MoviesContract.PopularMoviesEntry.TABLE_NAME, null, value);
 
-                            if(rowId > 0){
+                            if (rowId > 0) {
                                 rowsAdded++;
                             }
                         }
                     }
                     writableDatabase.setTransactionSuccessful();
-                }
-                catch (SQLException exception){
-                    Log.d(LOG_TAG,"SQLException =>"+exception.getMessage());
-                }
-                finally {
+                } catch (SQLException exception) {
+                    Log.d(LOG_TAG, "SQLException =>" + exception.getMessage());
+                } finally {
                     writableDatabase.endTransaction();
                 }
 
-                getContext().getContentResolver().notifyChange(uri,null);
+                getContext().getContentResolver().notifyChange(uri, null);
 
                 return rowsAdded;
             }
@@ -244,41 +232,36 @@ public class MoviesProvider extends ContentProvider {
 
                 int rowsAdded = 0;
 
-                try{
-                    for(ContentValues value : contentValues){
+                try {
+                    for (ContentValues value : contentValues) {
                         int affectedRowsCount = writableDatabase.update(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME, value, MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "." + MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{value.getAsString(MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID)});
 
-                        if(affectedRowsCount == 0){
+                        if (affectedRowsCount == 0) {
                             long rowId = writableDatabase.insert(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME, null, value);
 
-                            if(rowId > 0){
+                            if (rowId > 0) {
                                 rowsAdded++;
                             }
                         }
                     }
                     writableDatabase.setTransactionSuccessful();
-                }
-                catch (SQLException exception){
-                    Log.d(LOG_TAG,"SQLException =>"+exception.getMessage());
-                }
-                finally {
+                } catch (SQLException exception) {
+                    Log.d(LOG_TAG, "SQLException =>" + exception.getMessage());
+                } finally {
                     writableDatabase.endTransaction();
                 }
 
-                getContext().getContentResolver().notifyChange(uri,null);
+                getContext().getContentResolver().notifyChange(uri, null);
 
                 return rowsAdded;
             }
             case URI_FAVORITE_MOVIES: {
-                //long rowId = writableDatabase.insert(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, null, contentValues);
                 break;
             }
             case URI_MOVIE_REVIEWS: {
-                //long rowId = writableDatabase.insert(MoviesContract.MovieReviewsEntry.TABLE_NAME, null, contentValues);
                 break;
             }
             case URI_MOVIE_TRAILERS: {
-                //long rowId = writableDatabase.insert(MoviesContract.MovieTrailersEntry.TABLE_NAME, null, contentValues);
                 break;
             }
         }
@@ -292,8 +275,6 @@ public class MoviesProvider extends ContentProvider {
         return true;
     }
 
-    //SELECT popular_movies.movie_id,movies.poster_path FROM popular_movies INNER JOIN movies ON popular_movies.movie_id = movies._id
-
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
@@ -301,14 +282,14 @@ public class MoviesProvider extends ContentProvider {
 
         Cursor cursor = null;
 
-        switch (uriMatcher.match(uri)){
+        switch (uriMatcher.match(uri)) {
 
             case URI_MOVIES:
-                cursor = readableDatabase.query(MoviesContract.MoviesEntry.TABLE_NAME,null,null,null,null,null,null);
+                cursor = readableDatabase.query(MoviesContract.MoviesEntry.TABLE_NAME, null, null, null, null, null, null);
                 break;
 
             case URI_MOVIES_WITH_ID:
-                cursor = readableDatabase.query(MoviesContract.MoviesEntry.TABLE_NAME,null,selection,selectionArgs,null,null,null);
+                cursor = readableDatabase.query(MoviesContract.MoviesEntry.TABLE_NAME, null, selection, selectionArgs, null, null, null);
                 break;
 
             case URI_POPULAR_MOVIES:
@@ -339,7 +320,7 @@ public class MoviesProvider extends ContentProvider {
                 cursor = sqLiteMovieTrailersQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
         }
-        cursor.setNotificationUri(getContext().getContentResolver(),uri);
+        cursor.setNotificationUri(getContext().getContentResolver(), uri);
         return cursor;
     }
 
@@ -349,37 +330,35 @@ public class MoviesProvider extends ContentProvider {
         SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
 
         int updatedRowsCount = 0;
-        switch(uriMatcher.match(uri)){
-            case URI_MOVIES:
-            {
-                updatedRowsCount = writableDatabase.update(MoviesContract.MoviesEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+        switch (uriMatcher.match(uri)) {
+            case URI_MOVIES: {
+                updatedRowsCount = writableDatabase.update(MoviesContract.MoviesEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             }
-            case URI_POPULAR_MOVIES:
-            {
-                updatedRowsCount = writableDatabase.update(MoviesContract.PopularMoviesEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+            case URI_POPULAR_MOVIES: {
+                updatedRowsCount = writableDatabase.update(MoviesContract.PopularMoviesEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             }
             case URI_HIGHEST_RATED_MOVIES: {
-                updatedRowsCount = writableDatabase.update(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                updatedRowsCount = writableDatabase.update(MoviesContract.HighestRatedMoviesEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             }
             case URI_FAVORITE_MOVIES: {
-                updatedRowsCount = writableDatabase.update(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                updatedRowsCount = writableDatabase.update(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             }
             case URI_MOVIE_REVIEWS: {
-                updatedRowsCount = writableDatabase.update(MoviesContract.MovieReviewsEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                updatedRowsCount = writableDatabase.update(MoviesContract.MovieReviewsEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             }
             case URI_MOVIE_TRAILERS: {
-                updatedRowsCount = writableDatabase.update(MoviesContract.MovieTrailersEntry.TABLE_NAME, contentValues,selection,selectionArgs);
+                updatedRowsCount = writableDatabase.update(MoviesContract.MovieTrailersEntry.TABLE_NAME, contentValues, selection, selectionArgs);
                 break;
             }
         }
 
-        if(updatedRowsCount > 0){
-            getContext().getContentResolver().notifyChange(uri,null);
+        if (updatedRowsCount > 0) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
 
         return updatedRowsCount;

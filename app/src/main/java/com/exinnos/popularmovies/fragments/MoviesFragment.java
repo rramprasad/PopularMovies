@@ -82,10 +82,8 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     private ArrayList<Movie> moviesArrayList;
     private MoviesAdapter moviesAdapter;
 
-    //@Bind(R.id.toolbar)
     Toolbar toolbar;
 
-    //@Bind(R.id.movie_type_spinner)
     AppCompatSpinner moviesTypeSpinner;
 
     private String sortByArray[] = {"Most popular", "Highest Rated", "My Favorite"};
@@ -107,6 +105,8 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+
     }
 
     @Override
@@ -117,8 +117,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         ButterKnife.bind(this, rootView);
 
-        //moviesRecyclerView = (RecyclerView) rootView.findViewById(R.id.recyclerview_for_movies);
-
         moviesRecyclerView.setHasFixedSize(true);
 
         moviesGridLayoutManager = new GridLayoutManager(getActivity(), 2);
@@ -126,12 +124,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesRecyclerView.setLayoutManager(moviesGridLayoutManager);
 
         moviesArrayList = new ArrayList<>();
-        /*moviesAdapter = new MoviesAdapter(getActivity(), moviesArrayList, new MoviesAdapter.OnMovieClickListener() {
-            @Override
-            public void onMovieClicked(int movieId) {
-                mListener.onMovieSelected(movieId);
-            }
-        });*/
 
         moviesAdapter = new MoviesAdapter(getActivity(), null, new MoviesAdapter.OnMovieClickListener() {
             @Override
@@ -169,6 +161,9 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         toolbar = (Toolbar) getActivity().findViewById(R.id.toolbar);
         moviesTypeSpinner = (AppCompatSpinner) toolbar.findViewById(R.id.movie_type_spinner);
 
+        // Initialize movies sync adapter
+        MoviesSyncAdapter.initializeSyncAdapter(getActivity());
+
         ArrayAdapter<String> sortByArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.simple_spinner_item, sortByArray);
         sortByArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
 
@@ -183,15 +178,12 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
                 switch (position) {
                     case 0:
-                        //loadMovies(SORT_ORDER_POPULARITY_DESC);
                         getLoaderManager().initLoader(POPULAR_MOVIES_LOADER, null, MoviesFragment.this);
                         break;
                     case 1:
-                        //loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
                         getLoaderManager().initLoader(HIGHEST_RATED_MOVIES_LOADER, null, MoviesFragment.this);
                         break;
                     case 2:
-                        //loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
                         getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER, null, MoviesFragment.this);
                         break;
                 }
@@ -222,110 +214,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         super.onActivityCreated(savedInstanceState);
     }
-
-    /**
-     * Load movies in background
-     *
-     * @param sortby
-     */
-    /*private void loadMovies(String sortby) {
-
-        *//*if (AppUtilities.isNetworkConnected(getActivity())) {
-            fetchMoviesFromServer(sortby);
-        } else {
-            Snackbar.make(rootView, getActivity().getResources().getString(R.string.network_connection_not_available), Snackbar.LENGTH_SHORT).show();
-        }*//*
-
-        getLoaderManager().initLoader(POPULAR_MOVIES_LOADER, null, this);
-    }*/
-
-    /**
-     * Fetch movies data from server.
-     *
-     * @param sortby
-     */
-   /* private void fetchMoviesFromServer(String sortby) {
-
-        OkHttpClient httpClient = new OkHttpClient.Builder().addNetworkInterceptor(new StethoInterceptor()).build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(AppConstants.MOVIES_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient)
-                .build();
-
-        MoviesAPIService moviesAPIService = retrofit.create(MoviesAPIService.class);
-
-        Call<MoviesData> moviesDataCall = moviesAPIService.fetchMoviesData(sortby, BuildConfig.THE_MOVIE_DB_API_KEY);
-
-        moviesDataCall.enqueue(new Callback<MoviesData>() {
-
-            @Override
-            public void onResponse(Call<MoviesData> call, Response<MoviesData> response) {
-
-                Log.i(LOG_TAG, "on success " + response.isSuccess());
-
-                if (response != null) {
-                    List<Movie> moviesList = response.body().getMovies();
-                    moviesArrayList.clear();
-                    moviesArrayList.addAll(moviesList);
-
-                    storeOnLocalDatabase(moviesList);
-                }
-
-                //moviesAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onFailure(Call<MoviesData> call, Throwable t) {
-                Log.i(LOG_TAG, "Retrofit movies service on failure " + t.getMessage().toString());
-            }
-        });
-    }*/
-
-    /*private void storeOnLocalDatabase(List<Movie> moviesList) {
-
-        MoviesDbHelper moviesDbHelper = new MoviesDbHelper(getActivity());
-        SQLiteDatabase moviesDatabase = moviesDbHelper.getWritableDatabase();
-
-        for (Movie movie : moviesList) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put(MoviesContract.MoviesEntry._ID, movie.getId());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_ADULT, movie.getAdult());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_BACKDROP_PATH, movie.getBackdropPath());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_LANGUAGE, movie.getOriginalLanguage());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE, movie.getOriginalTitle());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW, movie.getOverview());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_POPULARITY, movie.getPopularity());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH, movie.getPosterPath());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE, movie.getReleaseDate());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_VIDEO, movie.getVideo());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE, movie.getVoteAverage());
-            contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT, movie.getVoteCount());
-
-            Cursor cursor = moviesDatabase.query(MoviesContract.MoviesEntry.TABLE_NAME, null, MoviesContract.MoviesEntry._ID + "=?", new String[]{String.valueOf(movie.getId())}, null, null, null);
-
-            if (cursor.getCount() > 0) {
-                moviesDatabase.update(MoviesContract.MoviesEntry.TABLE_NAME, contentValues, MoviesContract.MoviesEntry._ID + "=?", new String[]{String.valueOf(movie.getId())});
-            } else {
-                moviesDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME, null, contentValues);
-            }
-
-            // Store on popular movies table
-
-            ContentValues contentValues1 = new ContentValues();
-            contentValues1.put(MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID, movie.getId());
-
-            Cursor cursor1 = moviesDatabase.query(MoviesContract.PopularMoviesEntry.TABLE_NAME, null, MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + "=?", new String[]{String.valueOf(movie.getId())}, null, null, null);
-
-            if (cursor1.getCount() > 0) {
-                moviesDatabase.update(MoviesContract.PopularMoviesEntry.TABLE_NAME, contentValues1, MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + "=?", new String[]{String.valueOf(movie.getId())});
-            } else {
-                moviesDatabase.insert(MoviesContract.PopularMoviesEntry.TABLE_NAME, null, contentValues1);
-            }
-        }
-        moviesDatabase.close();
-    }*/
 
     @Override
     public void onAttach(Context context) {
