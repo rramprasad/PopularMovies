@@ -7,6 +7,7 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
 import android.database.Cursor;
@@ -27,6 +28,8 @@ import com.exinnos.popularmovies.network.MoviesAPIService;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import okhttp3.OkHttpClient;
@@ -71,6 +74,9 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle bundle, String authority, ContentProviderClient contentProviderClient, SyncResult syncResult) {
         Log.d("popular","Sync started");
+
+        String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+        getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("sync started_"+time,time).commit();
 
         syncPopularMovies();
         syncHighestRatedMovies();
@@ -141,6 +147,9 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
                     mContentResolver.bulkInsert(MoviesContract.PopularMoviesEntry.CONTENT_URI,cvv2);
 
+                    String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+                    getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("popular_movies_sync_completed_"+time,time).commit();
+
                 }
             }
 
@@ -203,41 +212,20 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         moviesContentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE, movie.getVoteAverage());
                         moviesContentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT, movie.getVoteCount());
 
-                        /*String movieIdString = String.valueOf(movie.getId());
-
-                        Cursor moviesCursor = mContentResolver.query(MoviesContract.MoviesEntry.buildMoviesWithIdUri(movie.getId()), null, MoviesContract.MoviesEntry.TABLE_NAME+"."+MoviesContract.MoviesEntry._ID + " = ?", new String[]{movieIdString}, null);
-
-                        Log.i(LOG_TAG, "Highest rated moviesCursor.getCount() => " +moviesCursor.getCount());
-
-                        if(moviesCursor.getCount() > 0){
-                            mContentResolver.update(MoviesContract.MoviesEntry.CONTENT_URI, moviesContentValues, MoviesContract.MoviesEntry._ID + "= ?",new String[]{movieIdString});
-                        }
-                        else{
-                            mContentResolver.insert(MoviesContract.MoviesEntry.CONTENT_URI, moviesContentValues);
-                        }*/
-
                         cvv1[i] = moviesContentValues;
-
-                        // Store on highest rated movies table
-                        //Cursor highestRatedMoviesCursor = mContentResolver.query(MoviesContract.HighestRatedMoviesEntry.buildHighestRatedMoviesWithIdUri(movie.getId()), null, MoviesContract.HighestRatedMoviesEntry.TABLE_NAME+"."+MoviesContract.HighestRatedMoviesEntry._ID + " = ?", new String[]{movieIdString}, null);
 
                         ContentValues highestRatedMoviesContentValues = new ContentValues();
                         highestRatedMoviesContentValues.put(MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID, movie.getId());
 
                         cvv2[i] = highestRatedMoviesContentValues;
-
-                        /*Log.i(LOG_TAG, "Highest rated highestRatedMoviesCursor.getCount() => " +highestRatedMoviesCursor.getCount());
-
-                        if(highestRatedMoviesCursor.getCount() > 0){
-                            mContentResolver.update(MoviesContract.HighestRatedMoviesEntry.CONTENT_URI, highestRatedMoviesContentValues, MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID + "= ?",new String[]{movieIdString});
-                        }
-                        else{
-                            mContentResolver.insert(MoviesContract.HighestRatedMoviesEntry.CONTENT_URI,highestRatedMoviesContentValues);
-                        }*/
                     }
 
                     mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI,cvv1);
                     mContentResolver.bulkInsert(MoviesContract.HighestRatedMoviesEntry.CONTENT_URI,cvv2);
+
+                    String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+                    getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("highest_rated_movies_sync_completed_"+time,time).commit();
+
                 }
             }
 
