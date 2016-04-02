@@ -15,4 +15,8 @@
     <dimen name="movie_poster_imageview_margin_top">10dp</dimen>
     <dimen name="overview_textview_padding">20dp</dimen>
     <dimen name="overview_textview_textsize">20sp</dimen>
+    <dimen name="content_padding_left">5dp</dimen>
+    <dimen name="content_padding_right">5dp</dimen>
+    <dimen name="content_padding_bottom">5dp</dimen>
+    <dimen name="content_padding_top">5dp</dimen>
 </resources>
