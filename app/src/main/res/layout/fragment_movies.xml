@@ -2,6 +2,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingLeft="@dimen/content_padding_left"
+    android:paddingRight="@dimen/content_padding_right"
+    android:paddingTop="@dimen/content_padding_top"
+    android:paddingBottom="@dimen/content_padding_bottom"
     tools:context="com.exinnos.popularmovies.fragments.MoviesFragment">
 
     <android.support.v7.widget.RecyclerView
