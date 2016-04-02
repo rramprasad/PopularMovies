@@ -1,46 +1,38 @@
 package com.exinnos.popularmovies.fragments;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
+import com.exinnos.popularmovies.adapters.MovieDetailsPagerAdapter;
 import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.data.MovieDetails;
-import com.exinnos.popularmovies.database.MoviesDbHelper;
-import com.exinnos.popularmovies.network.MoviesAPIService;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
-import com.facebook.stetho.okhttp3.StethoInterceptor;
 import com.squareup.picasso.Picasso;
-
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * @author RAMPRASAD
  *         Fragment for Movie details screen.
  */
-public class MovieDetailFragment extends Fragment {
+public class MovieDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
 
     private static final String ARG_MOVIE_ID = "arg_movie_id";
     private static final String LOG_TAG = "MovieDetailFragment";
+    private static final int MOVIE_DETAILS_LOADER = 200;
     private int mMovieId;
     private OnMovieDetailFragmentListener mListener;
     private View rootView;
@@ -54,11 +46,14 @@ public class MovieDetailFragment extends Fragment {
     @Bind(R.id.rating_textview)
     TextView ratingTextView;
 
-    @Bind(R.id.overview_textview)
+    /*@Bind(R.id.overview_textview)
     TextView overviewTextView;
 
     @Bind(R.id.movie_poster_imageview)
-    ImageView moviePosterImageView;
+    ImageView moviePosterImageView;*/
+
+    @Bind(R.id.movie_details_viewpager)
+    ViewPager movieDetailViewPager;
 
     public MovieDetailFragment() {
         // Required empty public constructor
@@ -88,11 +83,8 @@ public class MovieDetailFragment extends Fragment {
 
         ButterKnife.bind(this,rootView);
 
-        //movieTitleTextView = (TextView) rootView.findViewById(R.id.movie_title_textview);
-        //releaseDateTextView = (TextView) rootView.findViewById(R.id.release_date_textview);
-        //ratingTextView = (TextView) rootView.findViewById(R.id.rating_textview);
-        //overviewTextView = (TextView) rootView.findViewById(R.id.overview_textview);
-        //moviePosterImageView = (ImageView) rootView.findViewById(R.id.movie_poster_imageview);
+        MovieDetailsPagerAdapter movieDetailsPagerAdapter = new MovieDetailsPagerAdapter(getActivity().getSupportFragmentManager(),mMovieId);
+        movieDetailViewPager.setAdapter(movieDetailsPagerAdapter);
 
         return rootView;
     }
@@ -101,79 +93,7 @@ public class MovieDetailFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        if (AppUtilities.isNetworkConnected(getActivity())) {
-            fetechMovieDetailsFromServer(mMovieId);
-        } else {
-            Snackbar.make(rootView, getActivity().getResources().getString(R.string.network_connection_not_available), Snackbar.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Fetch movie details from server.
-     * @param mMovieId
-     */
-    private void fetechMovieDetailsFromServer(int mMovieId) {
-
-        OkHttpClient httpClient = new OkHttpClient.Builder().addNetworkInterceptor(new StethoInterceptor()).build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(AppConstants.MOVIE_DETAILS_BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(httpClient)
-                .build();
-
-        MoviesAPIService moviesAPIService = retrofit.create(MoviesAPIService.class);
-
-        Call<MovieDetails> movieDetailsCall = moviesAPIService.fetchMoviesDetails(mMovieId, BuildConfig.THE_MOVIE_DB_API_KEY);
-
-        movieDetailsCall.enqueue(new Callback<MovieDetails>() {
-            @Override
-            public void onResponse(Call<MovieDetails> call, Response<MovieDetails> response) {
-
-                Log.i(LOG_TAG,"on success "+response.isSuccess());
-
-                if (response != null) {
-                    MovieDetails movieDetails = response.body();
-
-                    MoviesDbHelper moviesDbHelper = new MoviesDbHelper(getActivity());
-                    SQLiteDatabase moviesDatabase = moviesDbHelper.getWritableDatabase();
-
-                    ContentValues contentValues = new ContentValues();
-                    contentValues.put(MoviesContract.MoviesEntry._ID,movieDetails.getId());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_ADULT,movieDetails.getAdult());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_BACKDROP_PATH,movieDetails.getBackdropPath());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_BUDGET,movieDetails.getBudget());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_HOME_PAGE,movieDetails.getHomepage());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_IMDB_ID,movieDetails.getImdbId());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_LANGUAGE,movieDetails.getOriginalLanguage());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE,movieDetails.getOriginalTitle());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_OVERVIEW,movieDetails.getOverview());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_POPULARITY,movieDetails.getPopularity());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH,movieDetails.getPosterPath());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE,movieDetails.getReleaseDate());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_REVENUE,movieDetails.getRevenue());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_RUNTIME,movieDetails.getRuntime());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_STATUS,movieDetails.getStatus());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_TAGLINE,movieDetails.getTagline());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_VIDEO,movieDetails.getVideo());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE,movieDetails.getVoteAverage());
-                    contentValues.put(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT,movieDetails.getVoteCount());
-
-                    moviesDatabase.insert(MoviesContract.MoviesEntry.TABLE_NAME,null,contentValues);
-
-                    // Update on UI
-                    updateOnUI(movieDetails);
-
-                } else {
-                    Snackbar.make(rootView, "Oops something went wrong.Try again.", Snackbar.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<MovieDetails> call, Throwable t) {
-                Log.i(LOG_TAG,"Retrofit movies service on failure "+t.getMessage().toString());
-            }
-        });
+        getLoaderManager().initLoader(MOVIE_DETAILS_LOADER,null,this);
     }
 
     @Override
@@ -200,13 +120,17 @@ public class MovieDetailFragment extends Fragment {
      */
     private void updateOnUI(MovieDetails movieDetails) {
 
-        movieTitleTextView.setText(movieDetails.getTitle());
+        if(movieDetails == null){
+            return;
+        }
+
+        movieTitleTextView.setText(movieDetails.getOriginalTitle());
 
         releaseDateTextView.setText(AppUtilities.getFormattedDate(movieDetails.getReleaseDate()));
 
         ratingTextView.setText(String.format("%.1f/10", movieDetails.getVoteAverage()));
 
-        overviewTextView.setText(movieDetails.getOverview());
+        /*overviewTextView.setText(movieDetails.getOverview());
 
         String imageURL = AppConstants.MOVIE_POSTER_IMAGE_W342_BASE_URL + movieDetails.getPosterPath();
 
@@ -214,7 +138,54 @@ public class MovieDetailFragment extends Fragment {
                 .load(imageURL)
                 .placeholder(android.R.color.darker_gray)
                 .error(android.R.drawable.stat_notify_error)
-                .into(moviePosterImageView);
+                .into(moviePosterImageView);*/
+    }
+
+
+    @Override
+    public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        Uri movieDetailsUri = MoviesContract.MoviesEntry.buildMoviesWithIdUri(mMovieId);
+        return new CursorLoader(getActivity(),movieDetailsUri,null, MoviesContract.MoviesEntry._ID+"=?",new String[]{String.valueOf(mMovieId)},null);
+    }
+
+    @Override
+    public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
+
+        Log.d(LOG_TAG,"cursor count =>"+cursor.getCount());
+
+        if(cursor != null && cursor.getCount() > 0){
+
+            if(cursor.moveToFirst()){
+                Log.d(LOG_TAG,"movie name =>"+cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE)));
+                MovieDetails movieDetails = new MovieDetails();
+                movieDetails.setId(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry._ID)));
+                movieDetails.setAdult(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ADULT)) == 1);
+                movieDetails.setBackdropPath(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_BACKDROP_PATH)));
+                movieDetails.setBudget(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_BUDGET)));
+                movieDetails.setHomepage(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_HOME_PAGE)));
+                movieDetails.setImdbId(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_IMDB_ID)));
+                movieDetails.setOriginalLanguage(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_LANGUAGE)));
+                movieDetails.setOriginalTitle(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE)));
+                movieDetails.setOverview(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_OVERVIEW)));
+                movieDetails.setPopularity(cursor.getDouble(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_POPULARITY)));
+                movieDetails.setPosterPath(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH)));
+                movieDetails.setReleaseDate(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE)));
+                movieDetails.setRevenue(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_REVENUE)));
+                movieDetails.setRuntime(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RUNTIME)));
+                movieDetails.setStatus(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_STATUS)));
+                movieDetails.setTagline(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_TAGLINE)));
+                movieDetails.setVideo(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_VIDEO)) == 1);
+                movieDetails.setVoteAverage(cursor.getDouble(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE)));
+                movieDetails.setVoteCount(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT)));
+
+                updateOnUI(movieDetails);
+            }
+        }
+    }
+
+    @Override
+    public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+
     }
 
     /**
