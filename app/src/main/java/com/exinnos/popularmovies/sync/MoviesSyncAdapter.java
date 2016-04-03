@@ -21,6 +21,10 @@ import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.adapters.MoviesAdapter;
 import com.exinnos.popularmovies.data.Movie;
+import com.exinnos.popularmovies.data.MovieReview;
+import com.exinnos.popularmovies.data.MovieReviewsData;
+import com.exinnos.popularmovies.data.MovieTrailer;
+import com.exinnos.popularmovies.data.MovieTrailersData;
 import com.exinnos.popularmovies.data.MoviesData;
 import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.database.MoviesDbHelper;
@@ -141,6 +145,9 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         popularMoviesContentValues.put(MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID, movie.getId());
 
                         cvv2[i] = popularMoviesContentValues;
+
+                        syncMovieTrailers(movie.getId());
+                        syncMovieReviews(movie.getId());
                     }
 
                     mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI,cvv1);
@@ -155,6 +162,138 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
             @Override
             public void onFailure(Call<MoviesData> call, Throwable t) {
+                Log.d("popular", "Retrofit movies service on failure " + t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Sync movie trailers by given Id
+     * @param movieId
+     */
+    private void syncMovieTrailers(int movieId) {
+
+        Log.d("popular", "sync movie trailers");
+
+        OkHttpClient httpClient = new OkHttpClient.Builder().addNetworkInterceptor(new StethoInterceptor()).build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(AppConstants.MOVIES_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build();
+
+        MoviesAPIService moviesAPIService = retrofit.create(MoviesAPIService.class);
+
+        Call<MovieTrailersData> movieTrailersCall = moviesAPIService.fetchMovieTrailers(movieId, BuildConfig.THE_MOVIE_DB_API_KEY);
+
+        movieTrailersCall.enqueue(new Callback<MovieTrailersData>() {
+            @Override
+            public void onResponse(Call<MovieTrailersData> call, Response<MovieTrailersData> response) {
+
+                Log.d("popular", "onResponse of movie trailer sync");
+
+                if (response != null &&  response.body() != null) {
+
+                    List<MovieTrailer> movieTrailers = response.body().getMovieTrailers();
+
+                    int movieId = response.body().getId();
+
+                    Log.d("popular",  "movieTrailers.size => " + movieTrailers.size());
+
+                    ContentValues[] cvv1 = new ContentValues[movieTrailers.size()];
+
+                    for (int i = 0; i < movieTrailers.size(); i++) {
+
+                        MovieTrailer movieTrailer = movieTrailers.get(i);
+
+                        ContentValues movieTrailerContentValues = new ContentValues();
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry._ID, movieTrailer.getId());
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry.COLUMN_MOVIE_ID, movieId);
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry.COLUMN_ISO6391, movieTrailer.getIso6391());
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry.COLUMN_ISO31661, movieTrailer.getIso31661());
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry.COLUMN_KEY, movieTrailer.getKey());
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry.COLUMN_NAME, movieTrailer.getName());
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry.COLUMN_SITE, movieTrailer.getSite());
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry.COLUMN_SIZE, movieTrailer.getSize());
+                        movieTrailerContentValues.put(MoviesContract.MovieTrailersEntry.COLUMN_TYPE, movieTrailer.getType());
+
+                        cvv1[i] = movieTrailerContentValues;
+                    }
+
+                    mContentResolver.bulkInsert(MoviesContract.MovieTrailersEntry.CONTENT_URI,cvv1);
+
+                    String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+                    getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("movie_trailers_sync_completed_"+time,time).commit();
+
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieTrailersData> call, Throwable t) {
+                Log.d("popular", "Retrofit movies service on failure " + t.getMessage());
+            }
+        });
+    }
+
+    /**
+     * Sync movie Reviews by given Id
+     * @param movieId
+     */
+    private void syncMovieReviews(int movieId) {
+
+        Log.d("popular", "sync movie reviews");
+
+        OkHttpClient httpClient = new OkHttpClient.Builder().addNetworkInterceptor(new StethoInterceptor()).build();
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(AppConstants.MOVIES_BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(httpClient)
+                .build();
+
+        MoviesAPIService moviesAPIService = retrofit.create(MoviesAPIService.class);
+
+        Call<MovieReviewsData> movieReviewsCall = moviesAPIService.fetchMovieReviews(movieId, BuildConfig.THE_MOVIE_DB_API_KEY);
+
+        movieReviewsCall.enqueue(new Callback<MovieReviewsData>() {
+            @Override
+            public void onResponse(Call<MovieReviewsData> call, Response<MovieReviewsData> response) {
+
+                Log.d("popular", "onResponse of movie reviews sync");
+
+                if (response != null && response.body() != null) {
+                    List<MovieReview> movieReviews = response.body().getMovieReviews();
+
+                    int movieId = response.body().getId();
+
+                    Log.d("popular",  "movieReviews.size => " + movieReviews.size());
+
+                    ContentValues[] cvv1 = new ContentValues[movieReviews.size()];
+
+                    for (int i = 0; i < movieReviews.size(); i++) {
+
+                        MovieReview movieReview = movieReviews.get(i);
+
+                        ContentValues movieReviewContentValues = new ContentValues();
+                        movieReviewContentValues.put(MoviesContract.MovieReviewsEntry._ID, movieReview.getId());
+                        movieReviewContentValues.put(MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID, movieId);
+                        movieReviewContentValues.put(MoviesContract.MovieReviewsEntry.COLUMN_AUTHOR, movieReview.getAuthor());
+                        movieReviewContentValues.put(MoviesContract.MovieReviewsEntry.COLUMN_CONTENT, movieReview.getContent());
+                        movieReviewContentValues.put(MoviesContract.MovieReviewsEntry.COLUMN_URL, movieReview.getUrl());
+
+                        cvv1[i] = movieReviewContentValues;
+                    }
+
+                    mContentResolver.bulkInsert(MoviesContract.MovieReviewsEntry.CONTENT_URI,cvv1);
+
+                    String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
+                    getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("movie_reviews_sync_completed_"+time,time).commit();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieReviewsData> call, Throwable t) {
                 Log.d("popular", "Retrofit movies service on failure " + t.getMessage());
             }
         });
@@ -218,6 +357,9 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         highestRatedMoviesContentValues.put(MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID, movie.getId());
 
                         cvv2[i] = highestRatedMoviesContentValues;
+
+                        syncMovieTrailers(movie.getId());
+                        syncMovieReviews(movie.getId());
                     }
 
                     mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI,cvv1);

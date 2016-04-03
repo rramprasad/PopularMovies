@@ -2,15 +2,19 @@ package com.exinnos.popularmovies.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.exinnos.popularmovies.data.Movie;
+import com.exinnos.popularmovies.fragments.MovieReviewsFragment;
 import com.exinnos.popularmovies.fragments.MovieSummaryFragment;
+import com.exinnos.popularmovies.fragments.MovieTrailersFragment;
 
 /**
  * Created by RAMPRASAD on 4/2/2016.
  * Adapter for movie details viewpager
  */
-public class MovieDetailsPagerAdapter extends FragmentStatePagerAdapter{
+public class MovieDetailsPagerAdapter extends FragmentPagerAdapter {
 
     private static final int FRAGMENT_PAGES_COUNT = 3;
     private int mMovieId;
@@ -22,7 +26,16 @@ public class MovieDetailsPagerAdapter extends FragmentStatePagerAdapter{
 
     @Override
     public Fragment getItem(int position) {
-        return MovieSummaryFragment.newInstance(mMovieId);
+        switch (position){
+            case 0:
+                return MovieSummaryFragment.newInstance(mMovieId);
+            case 1:
+                return MovieTrailersFragment.newInstance(mMovieId);
+            case 2:
+                return MovieReviewsFragment.newInstance(mMovieId);
+            default:
+                return MovieSummaryFragment.newInstance(mMovieId);
+        }
     }
 
     @Override

@@ -146,6 +146,10 @@ public final class MoviesContract {
         public static Uri buildFavoriteMoviesUri() {
             return CONTENT_URI.buildUpon().build();
         }
+
+        public static Uri buildFavoriteMoviesWithIdUri(Integer id) {
+            return ContentUris.withAppendedId(CONTENT_URI,id);
+        }
     }
 
 
@@ -162,6 +166,18 @@ public final class MoviesContract {
         public static final String TABLE_NAME = "movie_reviews";
 
         public static final String COLUMN_MOVIE_ID = "movie_id";
+        public static final String COLUMN_AUTHOR = "movie_author";
+        public static final String COLUMN_CONTENT = "movie_content";
+        public static final String COLUMN_URL = "movie_url";
+
+
+        public static Uri buildMovieReviewsUri() {
+            return CONTENT_URI.buildUpon().build();
+        }
+
+        public static Uri buildMovieReviewsWithIdUri(Integer id) {
+            return ContentUris.withAppendedId(CONTENT_URI,id);
+        }
     }
 
 
@@ -179,6 +195,21 @@ public final class MoviesContract {
         public static final String TABLE_NAME = "movie_trailers";
 
         public static final String COLUMN_MOVIE_ID = "movie_id";
+        public static final String COLUMN_ISO6391 = "iso6391";
+        public static final String COLUMN_ISO31661 = "iso31661";
+        public static final String COLUMN_KEY = "key";
+        public static final String COLUMN_NAME = "name";
+        public static final String COLUMN_SITE = "site";
+        public static final String COLUMN_SIZE = "size";
+        public static final String COLUMN_TYPE = "type";
+
+        public static Uri buildMovieTrailersUri() {
+            return CONTENT_URI.buildUpon().build();
+        }
+
+        public static Uri buildMovieTrailersWithIdUri(Integer id) {
+            return ContentUris.withAppendedId(CONTENT_URI,id);
+        }
     }
 
 }

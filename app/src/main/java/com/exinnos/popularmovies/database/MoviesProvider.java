@@ -259,10 +259,60 @@ public class MoviesProvider extends ContentProvider {
                 break;
             }
             case URI_MOVIE_REVIEWS: {
-                break;
+                writableDatabase.beginTransaction();
+
+                int rowsAdded = 0;
+
+                try {
+                    for (ContentValues value : contentValues) {
+                        int affectedRowsCount = writableDatabase.update(MoviesContract.MovieReviewsEntry.TABLE_NAME, value, MoviesContract.MovieReviewsEntry.TABLE_NAME + "." + MoviesContract.MovieReviewsEntry._ID + " = ?", new String[]{value.getAsString(MoviesContract.MovieReviewsEntry._ID)});
+
+                        if (affectedRowsCount == 0) {
+                            long rowId = writableDatabase.insert(MoviesContract.MovieReviewsEntry.TABLE_NAME, null, value);
+
+                            if (rowId > 0) {
+                                rowsAdded++;
+                            }
+                        }
+                    }
+                    writableDatabase.setTransactionSuccessful();
+                } catch (SQLException exception) {
+                    Log.d(LOG_TAG, "SQLException =>" + exception.getMessage());
+                } finally {
+                    writableDatabase.endTransaction();
+                }
+
+                getContext().getContentResolver().notifyChange(uri, null);
+
+                return rowsAdded;
             }
             case URI_MOVIE_TRAILERS: {
-                break;
+                writableDatabase.beginTransaction();
+
+                int rowsAdded = 0;
+
+                try {
+                    for (ContentValues value : contentValues) {
+                        int affectedRowsCount = writableDatabase.update(MoviesContract.MovieTrailersEntry.TABLE_NAME, value, MoviesContract.MovieTrailersEntry.TABLE_NAME + "." + MoviesContract.MovieTrailersEntry._ID + " = ?", new String[]{value.getAsString(MoviesContract.MoviesEntry._ID)});
+
+                        if (affectedRowsCount == 0) {
+                            long rowId = writableDatabase.insert(MoviesContract.MovieTrailersEntry.TABLE_NAME, null, value);
+
+                            if (rowId > 0) {
+                                rowsAdded++;
+                            }
+                        }
+                    }
+                    writableDatabase.setTransactionSuccessful();
+                } catch (SQLException exception) {
+                    Log.d(LOG_TAG, "SQLException =>" + exception.getMessage());
+                } finally {
+                    writableDatabase.endTransaction();
+                }
+
+                getContext().getContentResolver().notifyChange(uri, null);
+
+                return rowsAdded;
             }
         }
 
@@ -320,7 +370,11 @@ public class MoviesProvider extends ContentProvider {
                 cursor = sqLiteMovieTrailersQueryBuilder.query(readableDatabase, projection, selection, selectionArgs, null, null, sortOrder);
                 break;
         }
-        cursor.setNotificationUri(getContext().getContentResolver(), uri);
+
+        if(cursor != null){
+            cursor.setNotificationUri(getContext().getContentResolver(), uri);
+        }
+
         return cursor;
     }
 

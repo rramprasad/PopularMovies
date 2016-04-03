@@ -83,7 +83,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         ButterKnife.bind(this,rootView);
 
-        MovieDetailsPagerAdapter movieDetailsPagerAdapter = new MovieDetailsPagerAdapter(getActivity().getSupportFragmentManager(),mMovieId);
+        MovieDetailsPagerAdapter movieDetailsPagerAdapter = new MovieDetailsPagerAdapter(getChildFragmentManager(),mMovieId);
+        //movieDetailViewPager.setOffscreenPageLimit(0);
         movieDetailViewPager.setAdapter(movieDetailsPagerAdapter);
 
         return rootView;
