@@ -30,15 +30,13 @@ dependencies {
     testCompile 'junit:junit:4.12'
 
     //Retrofit from square
-    
 
     //okhttp
-    
+
     //convertor-gson
-    
+
     //Stetho for debugging
-    
-    
+
     //ButterKnife for view injection
     compile 'com.android.support:design:23.1.1'
     compile 'com.squareup.picasso:picasso:2.5.2'

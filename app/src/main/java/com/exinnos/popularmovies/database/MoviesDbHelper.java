@@ -79,8 +79,11 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
     // create movie reviews table
     private static final String SQL_CREATE_MOVIE_REVIEWS_TABLE = "CREATE TABLE "+ MoviesContract.MovieReviewsEntry.TABLE_NAME + "( "+
-            MoviesContract.MovieReviewsEntry._ID + INTEGER_PRIMARY_KEY_AUTOINCREMENT + COMMA_SEP +
-            MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + ")";
+            MoviesContract.MovieReviewsEntry._ID + " TEXT PRIMARY KEY" + COMMA_SEP +
+            MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + COMMA_SEP +
+            MoviesContract.MovieReviewsEntry.COLUMN_AUTHOR + TEXT_TYPE + COMMA_SEP +
+            MoviesContract.MovieReviewsEntry.COLUMN_CONTENT + TEXT_TYPE + COMMA_SEP +
+            MoviesContract.MovieReviewsEntry.COLUMN_URL + TEXT_TYPE + ")";
 
     // delete movie reviews table
     private static final String SQL_DELETE_MOVIE_REVIEWS_TABLE = "DROP TABLE IF EXISTS " + MoviesContract.MovieReviewsEntry.TABLE_NAME;
@@ -88,12 +91,18 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
     // create movie trailers table
     private static final String SQL_CREATE_MOVIE_TRAILERS_TABLE = "CREATE TABLE "+ MoviesContract.MovieTrailersEntry.TABLE_NAME + "( "+
-            MoviesContract.MovieTrailersEntry._ID + INTEGER_PRIMARY_KEY_AUTOINCREMENT + COMMA_SEP +
-            MoviesContract.MovieTrailersEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + ")";
+            MoviesContract.MovieTrailersEntry._ID + " TEXT PRIMARY KEY" + COMMA_SEP +
+            MoviesContract.MovieTrailersEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + COMMA_SEP +
+            MoviesContract.MovieTrailersEntry.COLUMN_ISO6391 + TEXT_TYPE + COMMA_SEP +
+            MoviesContract.MovieTrailersEntry.COLUMN_ISO31661 + TEXT_TYPE + COMMA_SEP +
+            MoviesContract.MovieTrailersEntry.COLUMN_KEY + TEXT_TYPE + COMMA_SEP +
+            MoviesContract.MovieTrailersEntry.COLUMN_NAME + TEXT_TYPE + COMMA_SEP +
+            MoviesContract.MovieTrailersEntry.COLUMN_SITE + TEXT_TYPE + COMMA_SEP +
+            MoviesContract.MovieTrailersEntry.COLUMN_SIZE + INTEGER_TYPE + COMMA_SEP +
+            MoviesContract.MovieTrailersEntry.COLUMN_TYPE + TEXT_TYPE + ")";
 
     // delete movie reviews table
     private static final String SQL_DELETE_MOVIE_TRAILERS_TABLE = "DROP TABLE IF EXISTS " + MoviesContract.MovieTrailersEntry.TABLE_NAME;
-
 
 
     public MoviesDbHelper(Context context) {
