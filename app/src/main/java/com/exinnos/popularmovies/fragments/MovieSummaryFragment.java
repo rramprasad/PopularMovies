@@ -99,25 +99,8 @@ public class MovieSummaryFragment extends Fragment  implements LoaderManager.Loa
             if(cursor.moveToFirst()){
                 Log.d(LOG_TAG,"movie name =>"+cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE)));
                 MovieDetails movieDetails = new MovieDetails();
-//                movieDetails.setId(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry._ID)));
-//                movieDetails.setAdult(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ADULT)) == 1);
-//                movieDetails.setBackdropPath(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_BACKDROP_PATH)));
-//                movieDetails.setBudget(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_BUDGET)));
-//                movieDetails.setHomepage(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_HOME_PAGE)));
-//                movieDetails.setImdbId(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_IMDB_ID)));
-//                movieDetails.setOriginalLanguage(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_LANGUAGE)));
-//                movieDetails.setOriginalTitle(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE)));
                 movieDetails.setOverview(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_OVERVIEW)));
-//                movieDetails.setPopularity(cursor.getDouble(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_POPULARITY)));
                 movieDetails.setPosterPath(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH)));
-//                movieDetails.setReleaseDate(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RELEASE_DATE)));
-//                movieDetails.setRevenue(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_REVENUE)));
-//                movieDetails.setRuntime(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_RUNTIME)));
-//                movieDetails.setStatus(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_STATUS)));
-//                movieDetails.setTagline(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_TAGLINE)));
-//                movieDetails.setVideo(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_VIDEO)) == 1);
-//                movieDetails.setVoteAverage(cursor.getDouble(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE)));
-//                movieDetails.setVoteCount(cursor.getInt(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT)));
 
                 updateOnUI(movieDetails);
             }

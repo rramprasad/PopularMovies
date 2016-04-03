@@ -1,6 +1,10 @@
 package com.exinnos.popularmovies.network;
 
 import com.exinnos.popularmovies.data.MovieDetails;
+import com.exinnos.popularmovies.data.MovieReview;
+import com.exinnos.popularmovies.data.MovieReviewsData;
+import com.exinnos.popularmovies.data.MovieTrailer;
+import com.exinnos.popularmovies.data.MovieTrailersData;
 import com.exinnos.popularmovies.data.MoviesData;
 
 import retrofit2.Call;
@@ -26,8 +30,13 @@ public interface MoviesAPIService {
     @GET("top_rated")
     Call<MoviesData> fetchHighestRatedMoviesData(@Query("api_key") String apiKey);
 
+    @GET("{movieId}/videos")
+    Call<MovieTrailersData> fetchMovieTrailers(@Path("movieId") int movieId, @Query("api_key") String apiKey);
 
-    @GET("movie/{movieId}")
-    Call<MovieDetails> fetchMoviesDetails(@Path("movieId") int movieId, @Query("api_key") String apiKey);
+    @GET("{movieId}/reviews")
+    Call<MovieReviewsData> fetchMovieReviews(@Path("movieId") int movieId, @Query("api_key") String apiKey);
+
+    //@GET("movie/{movieId}")
+    //Call<MovieDetails> fetchMoviesDetails(@Path("movieId") int movieId, @Query("api_key") String apiKey);
 
 }
