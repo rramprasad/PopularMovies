@@ -1,8 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#673AB7</color>
+    <!--<color name="colorPrimary">#673AB7</color>
     <color name="colorPrimaryDark">#512DA8</color>
     <color name="colorAccent">#7C4DFF</color>
+    <color name="titleTextColor">#ffe57f</color>-->
 
-    <color name="titleTextColor">#ffe57f</color>
+    <!--<color name="colorPrimary">#FF5722</color> //500 &ndash;&gt;
+    <color name="colorPrimaryDark">#E64A19</color> &lt;!&ndash; 700 &ndash;&gt;
+    <color name="colorAccent">#FF6E40</color> &lt;!&ndash; 200 &ndash;&gt;
+    <color name="titleTextColor">@android:color/white</color>-->
+
+    <!--<color name="colorPrimary">#8BC34A</color>
+    <color name="colorPrimaryDark">#689F38</color>
+    <color name="colorAccent">#689F38</color>
+    <color name="titleTextColor">@android:color/white</color>-->
+
+    <color name="colorPrimary">#F44336</color>
+    <color name="colorPrimaryDark">#D32F2F</color>
+    <color name="colorAccent">#D32F2F</color>
+    <color name="titleTextColor">@android:color/white</color>
 </resources>
