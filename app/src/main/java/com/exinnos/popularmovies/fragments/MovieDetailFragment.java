@@ -1,9 +1,12 @@
 package com.exinnos.popularmovies.fragments;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -21,6 +24,10 @@ import com.exinnos.popularmovies.data.MovieDetails;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.Bind;
 import butterknife.ButterKnife;
 
@@ -55,6 +62,11 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Bind(R.id.movie_details_viewpager)
     ViewPager movieDetailViewPager;
 
+    @Bind(R.id.movie_detail_tab_layout)
+    TabLayout movieDetailTabLayout;
+
+
+
     public MovieDetailFragment() {
         // Required empty public constructor
     }
@@ -83,17 +95,28 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         ButterKnife.bind(this,rootView);
 
-        MovieDetailsPagerAdapter movieDetailsPagerAdapter = new MovieDetailsPagerAdapter(getChildFragmentManager(),mMovieId);
-        //movieDetailViewPager.setOffscreenPageLimit(0);
+        List<String> fragmentTitleList = new ArrayList<String>();
+        fragmentTitleList.add("SUMMARY");
+        fragmentTitleList.add("TRAILERS");
+        fragmentTitleList.add("REVIEWS");
+
+        MovieDetailsPagerAdapter movieDetailsPagerAdapter = new MovieDetailsPagerAdapter(getChildFragmentManager(),mMovieId,fragmentTitleList);
         movieDetailViewPager.setAdapter(movieDetailsPagerAdapter);
+
+        movieDetailTabLayout.setupWithViewPager(movieDetailViewPager);
 
         return rootView;
     }
 
     @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
-
         getLoaderManager().initLoader(MOVIE_DETAILS_LOADER,null,this);
     }
 

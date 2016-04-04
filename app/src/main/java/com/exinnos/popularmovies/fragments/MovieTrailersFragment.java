@@ -1,6 +1,8 @@
 package com.exinnos.popularmovies.fragments;
 
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -74,11 +76,32 @@ public class MovieTrailersFragment extends Fragment implements LoaderManager.Loa
 
         movieTrailersRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-        movieTrailersAdapter = new MovieTrailersAdapter(getActivity(), null);
+        movieTrailersAdapter = new MovieTrailersAdapter(getActivity(), null, new MovieTrailersAdapter.OnTrailerClickListener() {
+            @Override
+            public void onTrailerClicked(String trailerId) {
+                playTrailerOnYoutube(trailerId);
+            }
+        });
 
         movieTrailersRecyclerView.setAdapter(movieTrailersAdapter);
 
         return rootView;
+    }
+
+    /**
+     * Play trailer
+     * @param trailerId
+     */
+    private void playTrailerOnYoutube(String trailerId) {
+
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("vnd.youtube:" + trailerId));
+            startActivity(intent);
+        }
+        catch (ActivityNotFoundException ex){
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=" + trailerId));
+            startActivity(intent);
+        }
     }
 
     @Override
