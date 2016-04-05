@@ -97,12 +97,14 @@
     </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/favorite_fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@drawable/ic_favorite_border_white_24dp"
         android:layout_gravity="bottom|right"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="20dp"
+        android:tag="not_favorite"
         />
 
 
