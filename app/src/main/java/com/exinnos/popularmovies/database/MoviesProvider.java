@@ -97,8 +97,38 @@ public class MoviesProvider extends ContentProvider {
 
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
-        // Implement this to handle requests to delete one or more rows.
-        throw new UnsupportedOperationException("Not yet implemented");
+
+        SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
+
+        int affectedRowsCount = 0;
+
+        switch (uriMatcher.match(uri)) {
+            case URI_MOVIES: {
+                break;
+            }
+            case URI_POPULAR_MOVIES: {
+                break;
+            }
+            case URI_HIGHEST_RATED_MOVIES: {
+                break;
+            }
+            case URI_FAVORITE_MOVIES: {
+
+                affectedRowsCount = writableDatabase.delete(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, selection,selectionArgs);
+
+                break;
+            }
+            case URI_MOVIE_REVIEWS: {
+                break;
+            }
+            case URI_MOVIE_TRAILERS: {
+                break;
+            }
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return affectedRowsCount;
     }
 
     @Override
@@ -147,7 +177,21 @@ public class MoviesProvider extends ContentProvider {
                 break;
             }
             case URI_FAVORITE_MOVIES: {
-                long rowId = writableDatabase.insert(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, null, contentValues);
+                //long rowId = writableDatabase.insert(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, null, contentValues);
+                try {
+                    writableDatabase.beginTransaction();
+                    int affectedRowsCount = writableDatabase.update(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, contentValues, MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{contentValues.getAsString(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID)});
+
+                    if (affectedRowsCount == 0) {
+                        long rowId = writableDatabase.insert(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, null, contentValues);
+                    }
+                    writableDatabase.setTransactionSuccessful();
+                } catch (SQLException exception) {
+                    Log.d(LOG_TAG, "SQLException =>" + exception.getMessage());
+                } finally {
+                    writableDatabase.endTransaction();
+                }
+
                 break;
             }
             case URI_MOVIE_REVIEWS: {
