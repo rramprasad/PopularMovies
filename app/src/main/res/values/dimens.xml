@@ -10,11 +10,11 @@
     <dimen name="movie_details_layout_padding_left">20dp</dimen>
     <dimen name="movie_details_layout_padding_right">10dp</dimen>
     <dimen name="movie_details_layout_padding_top">10dp</dimen>
-    <dimen name="movie_title_textview_size">28sp</dimen>
-    <dimen name="movie_sub_title_textview_size">20sp</dimen>
+    <dimen name="movie_title_textview_size">18sp</dimen>
+    <dimen name="movie_sub_title_textview_size">16sp</dimen>
     <dimen name="movie_poster_imageview_margin_top">10dp</dimen>
     <dimen name="overview_textview_padding">20dp</dimen>
-    <dimen name="overview_textview_textsize">20sp</dimen>
+    <dimen name="overview_textview_textsize">16sp</dimen>
     <dimen name="content_padding_left">5dp</dimen>
     <dimen name="content_padding_right">5dp</dimen>
     <dimen name="content_padding_bottom">5dp</dimen>
