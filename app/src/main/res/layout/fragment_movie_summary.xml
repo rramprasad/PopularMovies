@@ -13,9 +13,11 @@
                 android:id="@+id/movie_poster_imageview"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minHeight="150dp"
+                android:minWidth="100dp"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="@dimen/movie_poster_imageview_margin_top"
-                android:background="@android:color/darker_gray" />
+                 />
 
             <TextView
                 android:id="@+id/overview_textview"
@@ -23,8 +25,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="start"
                 android:padding="@dimen/overview_textview_padding"
-                android:textColor="@color/colorPrimaryDark"
-                android:textSize="@dimen/overview_textview_textsize" />
+                android:textSize="@dimen/overview_textview_textsize"
+                android:lineSpacingExtra="2dp"/>
 
         </LinearLayout>
     </ScrollView>

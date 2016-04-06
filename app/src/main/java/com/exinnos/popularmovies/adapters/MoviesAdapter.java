@@ -47,8 +47,8 @@ public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.Movie
 
         Picasso.with(context)
                 .load(imageURL)
-                .placeholder(android.R.color.darker_gray)
-                .error(android.R.drawable.stat_notify_error)
+                .placeholder(R.drawable.ic_maps_local_movies)
+                .error(R.drawable.ic_alert_error)
                 .into(customViewHolder.movieposterImageView);
     }
 
