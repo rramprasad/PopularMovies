@@ -12,25 +12,28 @@
     android:paddingRight="10dp"
     android:paddingBottom="10dp">
 
-    <TextView
-        android:id="@+id/review_textview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="A funny movie with a romantic love story.\r\n\r\nWade Wilson (Ryan Reynolds) is a former Special Forces operative who now works as a mercenary. His world comes crashing down when evil scientist Ajax (Ed Skrein) tortures, disfigures and transforms him into Deadpool. \r\n\r\nThe rogue experiment leaves Deadpool with accelerated healing powers and a twisted sense of humor. With help from mutant allies Colossus and Negasonic Teenage Warhead (Brianna Hildebrand), Deadpool uses his new skills to hunt down the man who nearly destroyed his life."
-        android:textSize="16sp"
-        />
+
 
     <TextView
         android:id="@+id/author_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/review_textview"
+
         android:text="huy.duc.eastagile"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentRight="true"
-        android:textSize="18sp"
-        android:layout_marginRight="20dp"
+
+        android:textSize="16sp"
         android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/review_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="A funny movie with a romantic love story.\r\n\r\nWade Wilson (Ryan Reynolds) is a former Special Forces operative who now works as a mercenary. His world comes crashing down when evil scientist Ajax (Ed Skrein) tortures, disfigures and transforms him into Deadpool. \r\n\r\nThe rogue experiment leaves Deadpool with accelerated healing powers and a twisted sense of humor. With help from mutant allies Colossus and Negasonic Teenage Warhead (Brianna Hildebrand), Deadpool uses his new skills to hunt down the man who nearly destroyed his life."
+        android:lineSpacingExtra="2dp"
+        android:layout_below="@id/author_textview"
+        android:layout_marginTop="20dp"
+        android:textSize="16sp"
         />
 
 </RelativeLayout>
