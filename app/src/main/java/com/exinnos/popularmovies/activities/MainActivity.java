@@ -9,6 +9,7 @@ import android.view.View;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.fragments.MovieDetailFragment;
 import com.exinnos.popularmovies.fragments.MoviesFragment;
+import com.exinnos.popularmovies.sync.MoviesSyncAdapter;
 
 import butterknife.ButterKnife;
 
@@ -41,11 +42,13 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
         if (ButterKnife.findById(this,R.id.framelayout_detail_container) != null) {
             twoPane = true;
         }
+
+        // Initialize movies sync adapter
+        MoviesSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
     public void onMovieSelected(int movieId) {
-
         if (twoPane) {
             // This is a tablet device.
             MovieDetailFragment movieDetailFragment = MovieDetailFragment.newInstance(movieId);

@@ -23,7 +23,10 @@ import butterknife.ButterKnife;
 public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.MovieViewHolder> {
 
     private final OnMovieClickListener mMovieClickListener;
+    private static boolean twoPane = false;
     private Context context;
+    private int mSelectedPosition = -1;
+    private int selectedPosition;
 
     public MoviesAdapter(Context context, Cursor cursor, OnMovieClickListener onMovieClickListener) {
         super(context, cursor);
@@ -50,6 +53,24 @@ public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.Movie
                 .placeholder(R.drawable.ic_maps_local_movies)
                 .error(R.drawable.ic_alert_error)
                 .into(customViewHolder.movieposterImageView);
+
+        if(customViewHolder.movie_poster_selection != null){
+            if(mSelectedPosition == cursor.getPosition()){
+                customViewHolder.movie_poster_selection.setVisibility(View.VISIBLE);
+            }
+            else{
+                customViewHolder.movie_poster_selection.setVisibility(View.GONE);
+            }
+        }
+    }
+
+    public void setSelectedPosition(int selectedPosition) {
+        mSelectedPosition = selectedPosition;
+        notifyDataSetChanged();
+    }
+
+    public int getSelectedPosition() {
+        return mSelectedPosition;
     }
 
     public interface OnMovieClickListener {
@@ -64,10 +85,21 @@ public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.Movie
         @Bind(R.id.movie_poster)
         protected ImageView movieposterImageView;
 
+        //@Bind(R.id.movie_poster_selection)
+        protected ImageView movie_poster_selection;
+
         public MovieViewHolder(View itemView) {
             super(itemView);
 
             ButterKnife.bind(this, itemView);
+
+            movie_poster_selection = (ImageView) itemView.findViewById(R.id.movie_poster_selection);
+
+            if(movie_poster_selection != null){
+                twoPane = true;
+            }
+
+            itemView.setClickable(true);
 
             itemView.setOnClickListener(this);
         }
@@ -79,6 +111,12 @@ public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.Movie
 
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToPosition(getAdapterPosition());
+
+                if(twoPane){
+                    mSelectedPosition = getAdapterPosition();
+                    notifyDataSetChanged();
+                }
+
                 int movieId = cursor.getInt(cursor.getColumnIndex(MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID));
                 mMovieClickListener.onMovieClicked(movieId);
             }
