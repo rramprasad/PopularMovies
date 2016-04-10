@@ -19,6 +19,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.adapters.MovieDetailsPagerAdapter;
@@ -46,9 +47,13 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private static final int FAVORITE_MOVIE_DETAILS_LOADER = 600;
     private static final String TAG_FAVORITE = "favorite";
     private static final String TAG_NOT_FAVORITE = "not_favorite";
+    private static final String KEY_VIEW_PAGER_CURRENT_ITEM = "key_viewpager_current_item";
     private int mMovieId;
     private OnMovieDetailFragmentListener mListener;
     private View rootView;
+
+    @Bind(R.id.movie_details_top_layout)
+    LinearLayout movieDetailsTopLayout;
 
     @Bind(R.id.movie_title_textview)
     TextView movieTitleTextView;
@@ -73,7 +78,13 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     @Bind(R.id.movie_detail_tab_layout)
     TabLayout movieDetailTabLayout;
+
+    @Bind(R.id.no_movie_selected_textview)
+    TextView noMovieSelectedTextview;
+
+
     private ContentResolver mContentResolver;
+    private int mCurrentViewPagerCurrentItem = 0;
 
 
     public MovieDetailFragment() {
@@ -91,9 +102,19 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             mMovieId = getArguments().getInt(ARG_MOVIE_ID);
         }
+
+
+
+        /*Log.d(LOG_TAG,"onCreate "+ mCurrentViewPagerCurrentItem);
+
+        if(savedInstanceState != null){
+            mCurrentViewPagerCurrentItem = savedInstanceState.getInt(KEY_VIEW_PAGER_CURRENT_ITEM);
+            Log.d(LOG_TAG,"onCreate after restore => "+ mCurrentViewPagerCurrentItem);
+        }*/
     }
 
     @Override
@@ -104,6 +125,14 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         ButterKnife.bind(this,rootView);
 
+        if(mMovieId == 0){
+            movieDetailsTopLayout.setVisibility(View.GONE);
+            favoriteFab.setVisibility(View.GONE);
+            return rootView;
+        }
+
+        noMovieSelectedTextview.setVisibility(View.GONE);
+
         List<String> fragmentTitleList = new ArrayList<String>();
         fragmentTitleList.add("SUMMARY");
         fragmentTitleList.add("TRAILERS");
@@ -111,6 +140,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         MovieDetailsPagerAdapter movieDetailsPagerAdapter = new MovieDetailsPagerAdapter(getChildFragmentManager(),mMovieId,fragmentTitleList);
         movieDetailViewPager.setAdapter(movieDetailsPagerAdapter);
+        movieDetailViewPager.setCurrentItem(mCurrentViewPagerCurrentItem);
 
         movieDetailTabLayout.setupWithViewPager(movieDetailViewPager);
 
@@ -135,7 +165,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         return rootView;
     }
 
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -146,8 +175,11 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onStart() {
         super.onStart();
-        getLoaderManager().initLoader(MOVIE_DETAILS_LOADER,null,this);
-        getLoaderManager().initLoader(FAVORITE_MOVIE_DETAILS_LOADER,null,this);
+
+        if(mMovieId > 0){
+            getLoaderManager().initLoader(MOVIE_DETAILS_LOADER,null,this);
+            getLoaderManager().initLoader(FAVORITE_MOVIE_DETAILS_LOADER,null,this);
+        }
     }
 
     @Override
@@ -166,6 +198,13 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         super.onDetach();
         mListener = null;
     }
+
+    /*@Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(LOG_TAG,"onSaveInstanceState movieDetailViewPager.getCurrentItem() => "+ movieDetailViewPager.getCurrentItem());
+        outState.putInt(KEY_VIEW_PAGER_CURRENT_ITEM,movieDetailViewPager.getCurrentItem());
+        super.onSaveInstanceState(outState);
+    }*/
 
     /**
      * Update movie details on UI.
