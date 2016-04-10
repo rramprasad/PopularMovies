@@ -6,7 +6,18 @@
     android:orientation="vertical"
     tools:context="com.exinnos.popularmovies.fragments.MovieDetailFragment">
 
+    <TextView
+        android:id="@+id/no_movie_selected_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No movie selected"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="@dimen/movie_title_textview_size"
+        android:layout_gravity="center"
+        />
+
     <LinearLayout
+        android:id="@+id/movie_details_top_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">

@@ -50,4 +50,10 @@ public class AppUtilities {
         }
 
     }
+
+
+    public static int getDeviceOrientation(Context context){
+        int orientation = context.getResources().getConfiguration().orientation;
+        return orientation;
+    }
 }

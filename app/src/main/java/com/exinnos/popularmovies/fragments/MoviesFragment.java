@@ -2,6 +2,7 @@ package com.exinnos.popularmovies.fragments;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -71,6 +72,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final String[] FAVORITE_MOVIES_COLUMNS = {MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry._ID,
             MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID, MoviesContract.MoviesEntry.COLUMN_POSTER_PATH};
+    private static final String KEY_MOVIE_CURRENT_POSITION = "key_movie_current_position";
 
     private OnMoviesFragmentListener mListener;
     private View rootView;
@@ -87,6 +89,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     AppCompatSpinner moviesTypeSpinner;
 
     private String sortByArray[] = {"Most popular", "Highest Rated", "My Favorite"};
+    private int mSelectedMoviePosition = -1;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -105,6 +108,10 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+
+        if(savedInstanceState != null){
+            mSelectedMoviePosition = savedInstanceState.getInt(KEY_MOVIE_CURRENT_POSITION);
+        }
     }
 
     @Override
@@ -117,7 +124,12 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         moviesRecyclerView.setHasFixedSize(true);
 
-        moviesGridLayoutManager = new GridLayoutManager(getActivity(), 2);
+        if(AppUtilities.getDeviceOrientation(getActivity()) == Configuration.ORIENTATION_PORTRAIT){
+            moviesGridLayoutManager = new GridLayoutManager(getActivity(), 2);
+        }
+        else{
+            moviesGridLayoutManager = new GridLayoutManager(getActivity(), 3);
+        }
 
         moviesRecyclerView.setLayoutManager(moviesGridLayoutManager);
 
@@ -132,11 +144,12 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         moviesRecyclerView.setAdapter(moviesAdapter);
 
+        moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
 
         return rootView;
     }
 
-    @Override
+    /*@Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.movies_fragment,menu);
     }
@@ -151,7 +164,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
                 break;
         }
         return true;
-    }
+    }*/
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -160,7 +173,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesTypeSpinner = (AppCompatSpinner) toolbar.findViewById(R.id.movie_type_spinner);
 
         // Initialize movies sync adapter
-        MoviesSyncAdapter.initializeSyncAdapter(getActivity());
+        //MoviesSyncAdapter.initializeSyncAdapter(getActivity());
 
         ArrayAdapter<String> sortByArrayAdapter = new ArrayAdapter<>(getActivity(), R.layout.simple_spinner_item, sortByArray);
         sortByArrayAdapter.setDropDownViewResource(R.layout.simple_spinner_dropdown_item);
@@ -174,6 +187,9 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
+                //moviesAdapter.setSelectedPosition(-1);
+                //mSelectedMoviePosition = -1;
+
                 switch (position) {
                     case 0:
                         getLoaderManager().initLoader(POPULAR_MOVIES_LOADER, null, MoviesFragment.this);
@@ -231,6 +247,13 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     }
 
     @Override
+    public void onSaveInstanceState(Bundle outState) {
+        mSelectedMoviePosition = moviesAdapter.getSelectedPosition();
+        outState.putInt(KEY_MOVIE_CURRENT_POSITION,mSelectedMoviePosition);
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 
         if (id == POPULAR_MOVIES_LOADER) {
@@ -260,6 +283,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         moviesAdapter.swapCursor(cursor);
+
     }
 
     @Override
