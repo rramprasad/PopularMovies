@@ -103,18 +103,18 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //setRetainInstance(true);
+
         if (getArguments() != null) {
             mMovieId = getArguments().getInt(ARG_MOVIE_ID);
         }
 
-
-
-        /*Log.d(LOG_TAG,"onCreate "+ mCurrentViewPagerCurrentItem);
+        Log.d(LOG_TAG,"onCreate "+ mCurrentViewPagerCurrentItem);
 
         if(savedInstanceState != null){
             mCurrentViewPagerCurrentItem = savedInstanceState.getInt(KEY_VIEW_PAGER_CURRENT_ITEM);
             Log.d(LOG_TAG,"onCreate after restore => "+ mCurrentViewPagerCurrentItem);
-        }*/
+        }
     }
 
     @Override
@@ -128,6 +128,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         if(mMovieId == 0){
             movieDetailsTopLayout.setVisibility(View.GONE);
             favoriteFab.setVisibility(View.GONE);
+
+            noMovieSelectedTextview.setVisibility(View.VISIBLE);
             return rootView;
         }
 
@@ -199,12 +201,12 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         mListener = null;
     }
 
-    /*@Override
+    @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(LOG_TAG,"onSaveInstanceState movieDetailViewPager.getCurrentItem() => "+ movieDetailViewPager.getCurrentItem());
         outState.putInt(KEY_VIEW_PAGER_CURRENT_ITEM,movieDetailViewPager.getCurrentItem());
         super.onSaveInstanceState(outState);
-    }*/
+    }
 
     /**
      * Update movie details on UI.
