@@ -17,7 +17,7 @@ import butterknife.ButterKnife;
  * @author RAMPRASAD
  *         Main Activity for movies.
  */
-public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMoviesFragmentListener {
+public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMoviesFragmentListener,MovieDetailFragment.OnMovieDetailFragmentListener  {
 
     public static final String INTENT_KEY_MOVIE_ID = "intent_key_movie_id";
     private boolean twoPane;
@@ -59,5 +59,10 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
             intent.putExtra(INTENT_KEY_MOVIE_ID, movieId);
             startActivity(intent);
         }
+    }
+
+    @Override
+    public void onMovieDetailFragmentInteraction() {
+
     }
 }
