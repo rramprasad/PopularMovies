@@ -187,7 +187,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                //moviesAdapter.setSelectedPosition(-1);
+                moviesAdapter.setSelectedPosition(-1);
                 //mSelectedMoviePosition = -1;
 
                 switch (position) {
