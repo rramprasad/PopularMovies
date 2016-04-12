@@ -79,8 +79,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Bind(R.id.movie_detail_tab_layout)
     TabLayout movieDetailTabLayout;
 
-    @Bind(R.id.no_movie_selected_textview)
-    TextView noMovieSelectedTextview;
+    //@Bind(R.id.no_movie_selected_textview)
+    //TextView noMovieSelectedTextview;
 
 
     private ContentResolver mContentResolver;
@@ -129,11 +129,11 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             movieDetailsTopLayout.setVisibility(View.GONE);
             favoriteFab.setVisibility(View.GONE);
 
-            noMovieSelectedTextview.setVisibility(View.VISIBLE);
+            //noMovieSelectedTextview.setVisibility(View.VISIBLE);
             return rootView;
         }
 
-        noMovieSelectedTextview.setVisibility(View.GONE);
+        //noMovieSelectedTextview.setVisibility(View.GONE);
 
         List<String> fragmentTitleList = new ArrayList<String>();
         fragmentTitleList.add("SUMMARY");
@@ -311,7 +311,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
      * Interface to communicate with host fragment.
      */
     public interface OnMovieDetailFragmentListener {
-        void onMovieDetailFragmentInteraction();
+        void onChangeOfFavorites();
     }
 
     // Remove current movie from favorites
@@ -327,6 +327,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
         mContentResolver.insert(favoriteMoviesUri,contentValues);
+
     }
 
 }
