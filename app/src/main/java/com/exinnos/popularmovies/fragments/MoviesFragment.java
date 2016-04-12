@@ -90,6 +90,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private String sortByArray[] = {"Most popular", "Highest Rated", "My Favorite"};
     private int mSelectedMoviePosition = -1;
+    private int mConfigChanged = 0;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -188,7 +189,14 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
                 moviesAdapter.setSelectedPosition(-1);
+
                 //mSelectedMoviePosition = -1;
+
+                /*if(mConfigChanged <= 0){
+                    moviesAdapter.setSelectedPosition(-1);
+                }
+
+                mConfigChanged = -1;*/
 
                 switch (position) {
                     case 0:
@@ -253,6 +261,20 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         super.onSaveInstanceState(outState);
     }
 
+    /*@Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        mConfigChanged = 1;
+    }*/
+
+    public void restartFavoritesLoader(){
+
+        if(moviesTypeSpinner.getSelectedItemPosition() == 2) {
+            getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER, null, this);
+        }
+    }
+
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
 
@@ -271,6 +293,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             return new CursorLoader(getActivity(),highestRatedMoviesUri,HIGHEST_RATED_MOVIES_COLUMNS,null,null,sortOrder);
         } else if(id == FAVORITE_MOVIES_LOADER){
 
+
             Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
 
             return new CursorLoader(getActivity(),favoriteMoviesUri,FAVORITE_MOVIES_COLUMNS,null,null,null);
@@ -283,7 +306,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         moviesAdapter.swapCursor(cursor);
-
+        moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
     }
 
     @Override
