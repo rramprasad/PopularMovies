@@ -62,7 +62,11 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
     }
 
     @Override
-    public void onMovieDetailFragmentInteraction() {
+    public void onChangeOfFavorites() {
+        MoviesFragment moviesFragment = MoviesFragment.newInstance();
 
+        if(moviesFragment != null && moviesFragment.isVisible()){
+            moviesFragment.restartFavoritesLoader();
+        }
     }
 }

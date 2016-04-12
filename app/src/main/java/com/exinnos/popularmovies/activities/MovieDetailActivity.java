@@ -29,13 +29,15 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
         int movieId = getIntent().getIntExtra(MainActivity.INTENT_KEY_MOVIE_ID, 0);
 
-        MovieDetailFragment movieDetailFragment = MovieDetailFragment.newInstance(movieId);
-        getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_container, movieDetailFragment).commit();
+        if(savedInstanceState == null) {
+            MovieDetailFragment movieDetailFragment = MovieDetailFragment.newInstance(movieId);
+            getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_container, movieDetailFragment).commit();
+        }
 
     }
 
     @Override
-    public void onMovieDetailFragmentInteraction() {
+    public void  onChangeOfFavorites() {
         // do nothing
     }
 
