@@ -110,9 +110,13 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
+        //setRetainInstance(true);
+
         if(savedInstanceState != null){
             mSelectedMoviePosition = savedInstanceState.getInt(KEY_MOVIE_CURRENT_POSITION);
+            mConfigChanged = 1;
         }
+
     }
 
     @Override
@@ -131,6 +135,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         else{
             moviesGridLayoutManager = new GridLayoutManager(getActivity(), 3);
         }
+
 
         moviesRecyclerView.setLayoutManager(moviesGridLayoutManager);
 
@@ -188,15 +193,17 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                moviesAdapter.setSelectedPosition(-1);
+                //moviesAdapter.setSelectedPosition(-1);
 
                 //mSelectedMoviePosition = -1;
 
-                /*if(mConfigChanged <= 0){
+                if(mConfigChanged <= 0){
                     moviesAdapter.setSelectedPosition(-1);
+                    mSelectedMoviePosition = -1;
+                    moviesRecyclerView.scrollToPosition(0);
                 }
 
-                mConfigChanged = -1;*/
+                mConfigChanged = -1;
 
                 switch (position) {
                     case 0:
@@ -268,12 +275,12 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         mConfigChanged = 1;
     }*/
 
-    public void restartFavoritesLoader(){
+    /*public void restartFavoritesLoader(){
 
         if(moviesTypeSpinner.getSelectedItemPosition() == 2) {
-            getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER, null, this);
+            getLoaderManager().restartLoader(FAVORITE_MOVIES_LOADER, null, this);
         }
-    }
+    }*/
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
