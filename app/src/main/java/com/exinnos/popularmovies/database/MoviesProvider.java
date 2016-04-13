@@ -100,7 +100,7 @@ public class MoviesProvider extends ContentProvider {
 
         SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
 
-        boolean notifyChange = true;
+        //boolean notifyChange = true;
 
         int affectedRowsCount = 0;
 
@@ -118,7 +118,7 @@ public class MoviesProvider extends ContentProvider {
 
                 affectedRowsCount = writableDatabase.delete(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, selection,selectionArgs);
 
-                notifyChange = false;
+                //notifyChange = false;
                 break;
             }
             case URI_MOVIE_REVIEWS: {
@@ -129,9 +129,9 @@ public class MoviesProvider extends ContentProvider {
             }
         }
 
-        if(notifyChange){
+        //if(notifyChange){
             getContext().getContentResolver().notifyChange(uri, null);
-        }
+        //}
 
 
         return affectedRowsCount;
@@ -168,7 +168,7 @@ public class MoviesProvider extends ContentProvider {
     public Uri insert(Uri uri, ContentValues contentValues) throws SQLiteException {
         SQLiteDatabase writableDatabase = moviesDbHelper.getWritableDatabase();
 
-        boolean notifyChange = true;
+        //boolean notifyChange = true;
         Uri returnUri = null;
         switch (uriMatcher.match(uri)) {
             case URI_MOVIES: {
@@ -199,7 +199,7 @@ public class MoviesProvider extends ContentProvider {
                     writableDatabase.endTransaction();
                 }
 
-                notifyChange = false;
+                //notifyChange = false;
                 break;
             }
             case URI_MOVIE_REVIEWS: {
@@ -212,9 +212,9 @@ public class MoviesProvider extends ContentProvider {
             }
         }
 
-        if(notifyChange){
+        //if(notifyChange){
             getContext().getContentResolver().notifyChange(uri, null);
-        }
+        //}
 
 
         return returnUri;

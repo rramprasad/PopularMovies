@@ -311,13 +311,14 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
      * Interface to communicate with host fragment.
      */
     public interface OnMovieDetailFragmentListener {
-        void onChangeOfFavorites();
+        //void onChangeOfFavorites();
     }
 
     // Remove current movie from favorites
     private void removeFromFavorites() {
         Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
         mContentResolver.delete(favoriteMoviesUri,MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{String.valueOf(mMovieId)});
+        //mListener.onChangeOfFavorites();
     }
 
     // Add current movie to favorites
@@ -327,7 +328,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
         mContentResolver.insert(favoriteMoviesUri,contentValues);
-
+        //mListener.onChangeOfFavorites();
     }
 
 }

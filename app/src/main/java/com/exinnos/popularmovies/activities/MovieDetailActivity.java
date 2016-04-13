@@ -36,10 +36,10 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
     }
 
-    @Override
+    /*@Override
     public void  onChangeOfFavorites() {
         // do nothing
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
