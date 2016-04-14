@@ -38,6 +38,7 @@ import com.exinnos.popularmovies.network.MoviesAPIService;
 import com.exinnos.popularmovies.sync.MoviesSyncAdapter;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
+import com.facebook.stetho.okhttp3.StethoInterceptor;
 
 import java.util.ArrayList;
 import java.util.List;
