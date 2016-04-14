@@ -58,8 +58,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public class MoviesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    private static final String SORT_ORDER_POPULARITY_DESC = "popularity.desc";
-    private static final String SORT_ORDER_VOTE_AVERAGE_DESC = "vote_average.desc";
+    //private static final String SORT_ORDER_POPULARITY_DESC = "popularity.desc";
+    //private static final String SORT_ORDER_VOTE_AVERAGE_DESC = "vote_average.desc";
     private static final String LOG_TAG = "MoviesFragment";
     private static final int POPULAR_MOVIES_LOADER = 1;
     private static final int HIGHEST_RATED_MOVIES_LOADER = 2;
@@ -90,7 +90,9 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private String sortByArray[] = {"Most popular", "Highest Rated", "My Favorite"};
     private int mSelectedMoviePosition = -1;
-    private int mConfigChanged = 0;
+    //private int previousPosition = -1;
+    //private int mConfigChanged = 0;
+    //private int selectedItemPosition;
 
     public MoviesFragment() {
         // Required empty public constructor
@@ -114,7 +116,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         if(savedInstanceState != null){
             mSelectedMoviePosition = savedInstanceState.getInt(KEY_MOVIE_CURRENT_POSITION);
-            mConfigChanged = 1;
+            //mConfigChanged = 1;
         }
 
     }
@@ -193,27 +195,38 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         moviesTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long id) {
-                //moviesAdapter.setSelectedPosition(-1);
+                //moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
 
                 //mSelectedMoviePosition = -1;
 
-                if(mConfigChanged <= 0){
+                /*if(mConfigChanged <= 0){
                     moviesAdapter.setSelectedPosition(-1);
                     mSelectedMoviePosition = -1;
                     moviesRecyclerView.scrollToPosition(0);
                 }
 
-                mConfigChanged = -1;
+                mConfigChanged = -1;*/
+
+                /*if(previousPosition != -1){
+                    moviesAdapter.setSelectedPosition(-1);
+                    mSelectedMoviePosition = -1;
+                    moviesRecyclerView.scrollToPosition(0);
+                }
+
+                previousPosition = position;*/
 
                 switch (position) {
                     case 0:
-                        getLoaderManager().initLoader(POPULAR_MOVIES_LOADER, null, MoviesFragment.this);
+                        //getLoaderManager().initLoader(POPULAR_MOVIES_LOADER,null,MoviesFragment.this);
+                        initOrRestartLoader(POPULAR_MOVIES_LOADER,null,MoviesFragment.this);
                         break;
                     case 1:
-                        getLoaderManager().initLoader(HIGHEST_RATED_MOVIES_LOADER, null, MoviesFragment.this);
+                        //getLoaderManager().initLoader(HIGHEST_RATED_MOVIES_LOADER,null,MoviesFragment.this);
+                        initOrRestartLoader(HIGHEST_RATED_MOVIES_LOADER,null,MoviesFragment.this);
                         break;
                     case 2:
-                        getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER, null, MoviesFragment.this);
+                        //getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER,null,MoviesFragment.this);
+                        initOrRestartLoader(FAVORITE_MOVIES_LOADER,null,MoviesFragment.this);
                         break;
                 }
             }
@@ -226,22 +239,34 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
 
         // Load movies on startup
-        int selectedItemPosition = moviesTypeSpinner.getSelectedItemPosition();
+        /*int selectedItemPosition = moviesTypeSpinner.getSelectedItemPosition();
         switch (selectedItemPosition) {
             case 0:
-                //loadMovies(SORT_ORDER_POPULARITY_DESC);
-                getLoaderManager().initLoader(POPULAR_MOVIES_LOADER, null, this);
+                getLoaderManager().initLoader(POPULAR_MOVIES_LOADER,null,this);
+                //initOrRestartLoader(POPULAR_MOVIES_LOADER,null,this);
                 break;
             case 1:
-                //loadMovies(SORT_ORDER_VOTE_AVERAGE_DESC);
-                getLoaderManager().initLoader(HIGHEST_RATED_MOVIES_LOADER, null, this);
+                getLoaderManager().initLoader(HIGHEST_RATED_MOVIES_LOADER,null,this);
+                //initOrRestartLoader(HIGHEST_RATED_MOVIES_LOADER,null,this);
                 break;
             case 2:
-                getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER, null, this);
+                getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER,null,this);
+                //initOrRestartLoader(FAVORITE_MOVIES_LOADER,null,this);
                 break;
-        }
+        }*/
 
         super.onActivityCreated(savedInstanceState);
+    }
+
+    private void initOrRestartLoader(int loaderId, Bundle args, LoaderManager.LoaderCallbacks callbacks) {
+
+        if(getLoaderManager().getLoader(loaderId) == null){
+            getLoaderManager().initLoader(loaderId, args, callbacks);
+        }
+        else{
+            getLoaderManager().restartLoader(loaderId, args, callbacks);
+        }
+
     }
 
     @Override
@@ -312,8 +337,28 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        moviesAdapter.swapCursor(cursor);
-        moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
+
+        int selectedItemPosition = moviesTypeSpinner.getSelectedItemPosition();
+
+        Log.d(LOG_TAG,"onLoadFinished");
+        Log.d(LOG_TAG,"selectedItemPosition =>"+selectedItemPosition);
+
+        if(loader.getId() == POPULAR_MOVIES_LOADER && selectedItemPosition == 0){
+            Log.d(LOG_TAG,"POPULAR_MOVIES_LOADER mSelectedMoviePosition =>"+mSelectedMoviePosition);
+            moviesAdapter.swapCursor(cursor);
+            moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
+        }
+        else if(loader.getId() == HIGHEST_RATED_MOVIES_LOADER  && selectedItemPosition == 1){
+            Log.d(LOG_TAG,"HIGHEST_RATED_MOVIES_LOADER mSelectedMoviePosition=>"+mSelectedMoviePosition);
+            moviesAdapter.swapCursor(cursor);
+            moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
+        }
+        else if(loader.getId() == FAVORITE_MOVIES_LOADER && selectedItemPosition == 2){
+            Log.d(LOG_TAG,"FAVORITE_MOVIES_LOADER mSelectedMoviePosition=>"+mSelectedMoviePosition);
+            moviesAdapter.swapCursor(cursor);
+            moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
+        }
+
     }
 
     @Override
