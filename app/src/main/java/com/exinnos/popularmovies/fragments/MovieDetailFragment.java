@@ -61,16 +61,10 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     TabLayout movieDetailTabLayout;
     private int mMovieId;
 
-    /*@Bind(R.id.overview_textview)
-    TextView overviewTextView;
 
-    @Bind(R.id.movie_poster_imageview)
-    ImageView moviePosterImageView;*/
     private OnMovieDetailFragmentListener mListener;
     private View rootView;
 
-    //@Bind(R.id.no_movie_selected_textview)
-    //TextView noMovieSelectedTextview;
     private ContentResolver mContentResolver;
     private int mCurrentViewPagerCurrentItem = 0;
 
@@ -117,11 +111,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             movieDetailsTopLayout.setVisibility(View.GONE);
             favoriteFab.setVisibility(View.GONE);
 
-            //noMovieSelectedTextview.setVisibility(View.VISIBLE);
             return rootView;
         }
 
-        //noMovieSelectedTextview.setVisibility(View.GONE);
 
         List<String> fragmentTitleList = new ArrayList<String>();
         fragmentTitleList.add("SUMMARY");
@@ -211,16 +203,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         releaseDateTextView.setText(AppUtilities.getFormattedDate(movieDetails.getReleaseDate()));
 
         ratingTextView.setText(String.format("%.1f/10", movieDetails.getVoteAverage()));
-
-        /*overviewTextView.setText(movieDetails.getOverview());
-
-        String imageURL = AppConstants.MOVIE_POSTER_IMAGE_W342_BASE_URL + movieDetails.getPosterPath();
-
-        Picasso.with(getActivity())
-                .load(imageURL)
-                .placeholder(android.R.color.darker_gray)
-                .error(android.R.drawable.stat_notify_error)
-                .into(moviePosterImageView);*/
     }
 
 
@@ -295,7 +277,6 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private void removeFromFavorites() {
         Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
         mContentResolver.delete(favoriteMoviesUri, MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{String.valueOf(mMovieId)});
-        //mListener.onChangeOfFavorites();
     }
 
     // Add current movie to favorites
@@ -305,14 +286,13 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
         Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
         mContentResolver.insert(favoriteMoviesUri, contentValues);
-        //mListener.onChangeOfFavorites();
     }
 
     /**
      * Interface to communicate with host fragment.
      */
     public interface OnMovieDetailFragmentListener {
-        //void onChangeOfFavorites();
+
     }
 
 }

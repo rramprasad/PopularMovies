@@ -18,7 +18,6 @@ public interface MoviesAPIService {
     //@GET("movie")
     //Call<MoviesData> fetchMoviesData(@Query("sort_by") String sortBy, @Query("api_key") String apiKey);
 
-
     // http://api.themoviedb.org/3/movie/top_rated?api_key=###
     @GET("popular")
     Call<MoviesData> fetchPopularMoviesData(@Query("api_key") String apiKey);

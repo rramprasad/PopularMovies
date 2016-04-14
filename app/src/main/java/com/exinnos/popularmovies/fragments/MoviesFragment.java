@@ -38,8 +38,6 @@ import butterknife.ButterKnife;
  */
 public class MoviesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
-    //private static final String SORT_ORDER_POPULARITY_DESC = "popularity.desc";
-    //private static final String SORT_ORDER_VOTE_AVERAGE_DESC = "vote_average.desc";
     private static final String LOG_TAG = "MoviesFragment";
     private static final int POPULAR_MOVIES_LOADER = 1;
     private static final int HIGHEST_RATED_MOVIES_LOADER = 2;
@@ -130,22 +128,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         return rootView;
     }
 
-    /*@Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.movies_fragment,menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-
-        switch (itemId){
-            case R.id.menu_refresh:
-                MoviesSyncAdapter.syncImmediately(getActivity());
-                break;
-        }
-        return true;
-    }*/
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -270,13 +252,6 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
         super.onConfigurationChanged(newConfig);
 
         mConfigChanged = 1;
-    }*/
-
-    /*public void restartFavoritesLoader(){
-
-        if(moviesTypeSpinner.getSelectedItemPosition() == 2) {
-            getLoaderManager().restartLoader(FAVORITE_MOVIES_LOADER, null, this);
-        }
     }*/
 
     @Override

@@ -59,14 +59,4 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
             startActivity(intent);
         }
     }
-
-    /*@Override
-    public void onChangeOfFavorites() {
-        MoviesFragment moviesFragment = MoviesFragment.newInstance();
-
-        //if(moviesFragment != null && moviesFragment.isVisible()){
-        if(moviesFragment != null){
-            moviesFragment.restartFavoritesLoader();
-        }
-    }*/
 }
