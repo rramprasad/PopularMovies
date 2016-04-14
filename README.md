@@ -12,6 +12,9 @@ Also add following line to [USER_HOME]/.gradle/gradle.properties file.
 TheMovieDBAPIKey="YOUR_UNIQUE_API_KEY"
 
 ![alt text](screenshots/screen-1.png) &nbsp;&nbsp; ![alt text](screenshots/screen-2.png "")
+<br>
 ![alt text](screenshots/screen-3.png "") &nbsp;&nbsp; ![alt text](screenshots/screen-4.png "")
+<br>
 ![alt text](screenshots/screen-5.png "") &nbsp;&nbsp; ![alt text](screenshots/screen-6.png "")
+<br>
 ![alt text](screenshots/screen-7.png "")
