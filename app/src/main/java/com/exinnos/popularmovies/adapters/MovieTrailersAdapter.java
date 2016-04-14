@@ -14,19 +14,18 @@ import com.exinnos.popularmovies.database.MoviesContract;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * Created by RAMPRASAD on 4/3/2016.
  * Adapter class for movie trailers
  */
-public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailersAdapter.CustomViewHolder>{
+public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailersAdapter.CustomViewHolder> {
 
     private Cursor cursor;
     private Context mContext;
     private OnTrailerClickListener mTrailerClickListener;
 
-    public MovieTrailersAdapter(Context context, Cursor cursor,OnTrailerClickListener trailerClickListener) {
+    public MovieTrailersAdapter(Context context, Cursor cursor, OnTrailerClickListener trailerClickListener) {
         super(context, cursor);
         this.mContext = context;
         this.cursor = cursor;
@@ -46,7 +45,7 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
         return customViewHolder;
     }
 
-    public interface OnTrailerClickListener{
+    public interface OnTrailerClickListener {
         void onTrailerClicked(String trailerId);
     }
 
@@ -54,7 +53,7 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
     /**
      * Custom viewholder
      */
-    public class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+    public class CustomViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         @Bind(R.id.play_imageview)
         protected ImageView playImageView;
@@ -65,7 +64,7 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
         public CustomViewHolder(View itemView) {
             super(itemView);
 
-            ButterKnife.bind(this,itemView);
+            ButterKnife.bind(this, itemView);
 
             itemView.setOnClickListener(this);
         }
@@ -74,7 +73,7 @@ public class MovieTrailersAdapter extends CursorRecyclerViewAdapter<MovieTrailer
         public void onClick(View view) {
             Cursor cursor = getCursor();
 
-            if(cursor != null && cursor.getCount() > 0){
+            if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToPosition(getAdapterPosition());
                 String trailerId = cursor.getString(cursor.getColumnIndex(MoviesContract.MovieTrailersEntry.COLUMN_KEY));
                 mTrailerClickListener.onTrailerClicked(trailerId);

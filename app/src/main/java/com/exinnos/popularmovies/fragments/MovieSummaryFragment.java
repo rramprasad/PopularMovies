@@ -20,7 +20,6 @@ import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.data.MovieDetails;
 import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.util.AppConstants;
-import com.exinnos.popularmovies.util.AppUtilities;
 import com.squareup.picasso.Picasso;
 
 import butterknife.Bind;
@@ -29,19 +28,17 @@ import butterknife.ButterKnife;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MovieSummaryFragment extends Fragment  implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MovieSummaryFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
 
     private static final String ARG_MOVIE_ID = "arg_movie_id";
     private static final int MOVIE_SUMMARY_LOADER = 300;
     private static final String LOG_TAG = MovieSummaryFragment.class.getSimpleName();
-    private int mMovieId;
-
     @Bind(R.id.overview_textview)
     TextView overviewTextView;
-
     @Bind(R.id.movie_poster_imageview)
     ImageView moviePosterImageView;
+    private int mMovieId;
 
     public MovieSummaryFragment() {
         // Required empty public constructor
@@ -70,7 +67,7 @@ public class MovieSummaryFragment extends Fragment  implements LoaderManager.Loa
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_summary, container, false);
 
-        ButterKnife.bind(this,rootView);
+        ButterKnife.bind(this, rootView);
 
         return rootView;
     }
@@ -79,25 +76,24 @@ public class MovieSummaryFragment extends Fragment  implements LoaderManager.Loa
     public void onStart() {
         super.onStart();
 
-        getLoaderManager().initLoader(MOVIE_SUMMARY_LOADER,null,this);
+        getLoaderManager().initLoader(MOVIE_SUMMARY_LOADER, null, this);
     }
-
 
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri movieDetailsUri = MoviesContract.MoviesEntry.buildMoviesWithIdUri(mMovieId);
-        return new CursorLoader(getActivity(),movieDetailsUri,null, MoviesContract.MoviesEntry._ID+"=?",new String[]{String.valueOf(mMovieId)},null);
+        return new CursorLoader(getActivity(), movieDetailsUri, null, MoviesContract.MoviesEntry._ID + "=?", new String[]{String.valueOf(mMovieId)}, null);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        Log.d(LOG_TAG,"cursor count =>"+cursor.getCount());
+        Log.d(LOG_TAG, "cursor count =>" + cursor.getCount());
 
-        if(cursor != null && cursor.getCount() > 0){
+        if (cursor != null && cursor.getCount() > 0) {
 
-            if(cursor.moveToFirst()){
-                Log.d(LOG_TAG,"movie name =>"+cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE)));
+            if (cursor.moveToFirst()) {
+                Log.d(LOG_TAG, "movie name =>" + cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_ORIGINAL_TITLE)));
                 MovieDetails movieDetails = new MovieDetails();
                 movieDetails.setOverview(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_OVERVIEW)));
                 movieDetails.setPosterPath(cursor.getString(cursor.getColumnIndex(MoviesContract.MoviesEntry.COLUMN_POSTER_PATH)));
@@ -119,7 +115,7 @@ public class MovieSummaryFragment extends Fragment  implements LoaderManager.Loa
      */
     private void updateOnUI(MovieDetails movieDetails) {
 
-        if(movieDetails == null){
+        if (movieDetails == null) {
             return;
         }
 

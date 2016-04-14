@@ -18,7 +18,7 @@ import butterknife.ButterKnife;
  * Created by RAMPRASAD on 4/3/2016.
  * Adapter class for movie reviews
  */
-public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsAdapter.CustomViewHolder>{
+public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsAdapter.CustomViewHolder> {
 
     private Cursor cursor;
     private Context mContext;
@@ -46,7 +46,7 @@ public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsA
     /**
      * Custom viewholder
      */
-    public class CustomViewHolder extends RecyclerView.ViewHolder{
+    public class CustomViewHolder extends RecyclerView.ViewHolder {
 
         @Bind(R.id.review_textview)
         protected TextView reviewTextView;
@@ -57,7 +57,7 @@ public class MovieReviewsAdapter extends CursorRecyclerViewAdapter<MovieReviewsA
         public CustomViewHolder(View itemView) {
             super(itemView);
 
-            ButterKnife.bind(this,itemView);
+            ButterKnife.bind(this, itemView);
         }
 
     }

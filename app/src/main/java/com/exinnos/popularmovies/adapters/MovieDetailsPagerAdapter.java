@@ -3,14 +3,11 @@ package com.exinnos.popularmovies.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.exinnos.popularmovies.data.Movie;
 import com.exinnos.popularmovies.fragments.MovieReviewsFragment;
 import com.exinnos.popularmovies.fragments.MovieSummaryFragment;
 import com.exinnos.popularmovies.fragments.MovieTrailersFragment;
 
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -23,7 +20,7 @@ public class MovieDetailsPagerAdapter extends FragmentPagerAdapter {
     private int mMovieId;
     private List<String> mFragmentTitleList;
 
-    public MovieDetailsPagerAdapter(FragmentManager supportFragmentManager,int movieId,List<String> fragmentTitleList) {
+    public MovieDetailsPagerAdapter(FragmentManager supportFragmentManager, int movieId, List<String> fragmentTitleList) {
         super(supportFragmentManager);
         this.mMovieId = movieId;
         this.mFragmentTitleList = fragmentTitleList;
@@ -31,7 +28,7 @@ public class MovieDetailsPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        switch (position){
+        switch (position) {
             case 0:
                 return MovieSummaryFragment.newInstance(mMovieId);
             case 1:

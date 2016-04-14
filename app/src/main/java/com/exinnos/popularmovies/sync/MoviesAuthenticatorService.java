@@ -3,7 +3,6 @@ package com.exinnos.popularmovies.sync;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
 
 /**
  * Created by RAMPRASAD on 3/7/2016.

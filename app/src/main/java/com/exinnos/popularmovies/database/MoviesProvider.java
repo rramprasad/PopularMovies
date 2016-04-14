@@ -29,19 +29,11 @@ public class MoviesProvider extends ContentProvider {
 
     private static final int URI_MOVIE_TRAILERS = 600;
     private static final String LOG_TAG = MoviesProvider.class.getSimpleName();
-
-
-    private MoviesDbHelper moviesDbHelper;
     private static final SQLiteQueryBuilder sqLitePopularMoviesQueryBuilder;
     private static final SQLiteQueryBuilder sqLiteHighestRatedMoviesQueryBuilder;
     private static final SQLiteQueryBuilder sqLiteFavoriteMoviesQueryBuilder;
     private static final SQLiteQueryBuilder sqLiteMovieReviewsQueryBuilder;
     private static final SQLiteQueryBuilder sqLiteMovieTrailersQueryBuilder;
-
-    private UriMatcher uriMatcher = buildUriMatcher();
-
-    public MoviesProvider() {
-    }
 
     static {
 
@@ -75,6 +67,12 @@ public class MoviesProvider extends ContentProvider {
         sqLiteMovieTrailersQueryBuilder.setTables(MoviesContract.MovieTrailersEntry.TABLE_NAME + " INNER JOIN " +
                 MoviesContract.MoviesEntry.TABLE_NAME + " ON " + MoviesContract.MovieTrailersEntry.TABLE_NAME + "." + MoviesContract.MovieTrailersEntry.COLUMN_MOVIE_ID +
                 "=" + MoviesContract.MoviesEntry.TABLE_NAME + "." + MoviesContract.MoviesEntry._ID);
+    }
+
+    private MoviesDbHelper moviesDbHelper;
+    private UriMatcher uriMatcher = buildUriMatcher();
+
+    public MoviesProvider() {
     }
 
     // Match Uri
@@ -116,7 +114,7 @@ public class MoviesProvider extends ContentProvider {
             }
             case URI_FAVORITE_MOVIES: {
 
-                affectedRowsCount = writableDatabase.delete(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, selection,selectionArgs);
+                affectedRowsCount = writableDatabase.delete(MoviesContract.FavoriteMoviesEntry.TABLE_NAME, selection, selectionArgs);
 
                 //notifyChange = false;
                 break;
@@ -130,7 +128,7 @@ public class MoviesProvider extends ContentProvider {
         }
 
         //if(notifyChange){
-            getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(uri, null);
         //}
 
 
@@ -213,7 +211,7 @@ public class MoviesProvider extends ContentProvider {
         }
 
         //if(notifyChange){
-            getContext().getContentResolver().notifyChange(uri, null);
+        getContext().getContentResolver().notifyChange(uri, null);
         //}
 
 
@@ -426,7 +424,7 @@ public class MoviesProvider extends ContentProvider {
                 break;
         }
 
-        if(cursor != null){
+        if (cursor != null) {
             cursor.setNotificationUri(getContext().getContentResolver(), uri);
         }
 

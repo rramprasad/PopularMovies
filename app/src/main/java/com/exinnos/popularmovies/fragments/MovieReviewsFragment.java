@@ -9,7 +9,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,21 +28,19 @@ public class MovieReviewsFragment extends Fragment implements LoaderManager.Load
     private static final String ARG_MOVIE_ID = "arg_movie_id";
     private static final int MOVIE_REVIEWS_LOADER = 600;
     private static final String LOG_TAG = MovieReviewsFragment.class.getSimpleName();
-    private int mMovieId;
-
     @Bind(R.id.recyclerview_for_movie_reviews)
     RecyclerView movieReviewsRecyclerView;
-
+    private int mMovieId;
     private MovieReviewsAdapter movieReviewsAdapter;
 
     public MovieReviewsFragment() {
         // Required empty public constructor
     }
 
-    public static MovieReviewsFragment newInstance(int movieId){
+    public static MovieReviewsFragment newInstance(int movieId) {
         MovieReviewsFragment movieReviewsFragment = new MovieReviewsFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_MOVIE_ID,movieId);
+        args.putInt(ARG_MOVIE_ID, movieId);
         movieReviewsFragment.setArguments(args);
         return movieReviewsFragment;
     }
@@ -52,7 +49,7 @@ public class MovieReviewsFragment extends Fragment implements LoaderManager.Load
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(getArguments() != null){
+        if (getArguments() != null) {
             mMovieId = getArguments().getInt(ARG_MOVIE_ID);
         }
     }
@@ -64,7 +61,7 @@ public class MovieReviewsFragment extends Fragment implements LoaderManager.Load
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_movie_reviews, container, false);
 
-        ButterKnife.bind(this,rootView);
+        ButterKnife.bind(this, rootView);
 
         movieReviewsRecyclerView.setHasFixedSize(true);
 
@@ -80,13 +77,13 @@ public class MovieReviewsFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER,null,this);
+        getLoaderManager().initLoader(MOVIE_REVIEWS_LOADER, null, this);
     }
 
     @Override
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
         Uri movieReviewsUri = MoviesContract.MovieReviewsEntry.buildMovieReviewsUri();
-        return new CursorLoader(getActivity(),movieReviewsUri,null, MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID+"=?",new String[]{String.valueOf(mMovieId)},null);
+        return new CursorLoader(getActivity(), movieReviewsUri, null, MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID + "=?", new String[]{String.valueOf(mMovieId)}, null);
     }
 
     @Override

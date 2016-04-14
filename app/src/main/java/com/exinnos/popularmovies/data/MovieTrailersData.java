@@ -1,9 +1,10 @@
 package com.exinnos.popularmovies.data;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by RAMPRASAD on 4/3/2016.
@@ -19,36 +20,28 @@ public class MovieTrailersData {
     private List<MovieTrailer> results = new ArrayList<MovieTrailer>();
 
     /**
-     *
-     * @return
-     * The id
+     * @return The id
      */
     public Integer getId() {
         return id;
     }
 
     /**
-     *
-     * @param id
-     * The id
+     * @param id The id
      */
     public void setId(Integer id) {
         this.id = id;
     }
 
     /**
-     *
-     * @return
-     * The results
+     * @return The results
      */
     public List<MovieTrailer> getMovieTrailers() {
         return results;
     }
 
     /**
-     *
-     * @param results
-     * The results
+     * @param results The results
      */
     public void setMovieTrailers(List<MovieTrailer> results) {
         this.results = results;

@@ -1,9 +1,6 @@
 package com.exinnos.popularmovies.network;
 
-import com.exinnos.popularmovies.data.MovieDetails;
-import com.exinnos.popularmovies.data.MovieReview;
 import com.exinnos.popularmovies.data.MovieReviewsData;
-import com.exinnos.popularmovies.data.MovieTrailer;
 import com.exinnos.popularmovies.data.MovieTrailersData;
 import com.exinnos.popularmovies.data.MoviesData;
 

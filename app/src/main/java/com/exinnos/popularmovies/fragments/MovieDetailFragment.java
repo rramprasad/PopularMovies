@@ -1,6 +1,5 @@
 package com.exinnos.popularmovies.fragments;
 
-import android.app.ActionBar;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -18,16 +17,14 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.adapters.MovieDetailsPagerAdapter;
-import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.data.MovieDetails;
-import com.exinnos.popularmovies.util.AppConstants;
+import com.exinnos.popularmovies.database.MoviesContract;
 import com.exinnos.popularmovies.util.AppUtilities;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +36,7 @@ import butterknife.ButterKnife;
  * @author RAMPRASAD
  *         Fragment for Movie details screen.
  */
-public class MovieDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>{
+public class MovieDetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String ARG_MOVIE_ID = "arg_movie_id";
     private static final String LOG_TAG = "MovieDetailFragment";
@@ -48,41 +45,32 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     private static final String TAG_FAVORITE = "favorite";
     private static final String TAG_NOT_FAVORITE = "not_favorite";
     private static final String KEY_VIEW_PAGER_CURRENT_ITEM = "key_viewpager_current_item";
-    private int mMovieId;
-    private OnMovieDetailFragmentListener mListener;
-    private View rootView;
-
     @Bind(R.id.movie_details_top_layout)
     LinearLayout movieDetailsTopLayout;
-
     @Bind(R.id.movie_title_textview)
     TextView movieTitleTextView;
-
     @Bind(R.id.release_date_textview)
     TextView releaseDateTextView;
-
     @Bind(R.id.rating_textview)
     TextView ratingTextView;
-
     @Bind(R.id.favorite_fab)
     FloatingActionButton favoriteFab;
+    @Bind(R.id.movie_details_viewpager)
+    ViewPager movieDetailViewPager;
+    @Bind(R.id.movie_detail_tab_layout)
+    TabLayout movieDetailTabLayout;
+    private int mMovieId;
 
     /*@Bind(R.id.overview_textview)
     TextView overviewTextView;
 
     @Bind(R.id.movie_poster_imageview)
     ImageView moviePosterImageView;*/
-
-    @Bind(R.id.movie_details_viewpager)
-    ViewPager movieDetailViewPager;
-
-    @Bind(R.id.movie_detail_tab_layout)
-    TabLayout movieDetailTabLayout;
+    private OnMovieDetailFragmentListener mListener;
+    private View rootView;
 
     //@Bind(R.id.no_movie_selected_textview)
     //TextView noMovieSelectedTextview;
-
-
     private ContentResolver mContentResolver;
     private int mCurrentViewPagerCurrentItem = 0;
 
@@ -109,11 +97,11 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             mMovieId = getArguments().getInt(ARG_MOVIE_ID);
         }
 
-        Log.d(LOG_TAG,"onCreate "+ mCurrentViewPagerCurrentItem);
+        Log.d(LOG_TAG, "onCreate " + mCurrentViewPagerCurrentItem);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             mCurrentViewPagerCurrentItem = savedInstanceState.getInt(KEY_VIEW_PAGER_CURRENT_ITEM);
-            Log.d(LOG_TAG,"onCreate after restore => "+ mCurrentViewPagerCurrentItem);
+            Log.d(LOG_TAG, "onCreate after restore => " + mCurrentViewPagerCurrentItem);
         }
     }
 
@@ -123,9 +111,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         // Inflate the layout for this fragment
         rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
 
-        ButterKnife.bind(this,rootView);
+        ButterKnife.bind(this, rootView);
 
-        if(mMovieId == 0){
+        if (mMovieId == 0) {
             movieDetailsTopLayout.setVisibility(View.GONE);
             favoriteFab.setVisibility(View.GONE);
 
@@ -140,7 +128,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
         fragmentTitleList.add("TRAILERS");
         fragmentTitleList.add("REVIEWS");
 
-        MovieDetailsPagerAdapter movieDetailsPagerAdapter = new MovieDetailsPagerAdapter(getChildFragmentManager(),mMovieId,fragmentTitleList);
+        MovieDetailsPagerAdapter movieDetailsPagerAdapter = new MovieDetailsPagerAdapter(getChildFragmentManager(), mMovieId, fragmentTitleList);
         movieDetailViewPager.setAdapter(movieDetailsPagerAdapter);
         movieDetailViewPager.setCurrentItem(mCurrentViewPagerCurrentItem);
 
@@ -151,12 +139,11 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
             public void onClick(View view) {
                 String favoriteTag = view.getTag().toString();
 
-                if(favoriteTag.equalsIgnoreCase(TAG_FAVORITE)){
+                if (favoriteTag.equalsIgnoreCase(TAG_FAVORITE)) {
                     removeFromFavorites();
                     view.setTag(TAG_NOT_FAVORITE);
                     favoriteFab.setImageResource(R.drawable.ic_favorite_border_white_24dp);
-                }
-                else{
+                } else {
                     addToFavorites();
                     view.setTag(TAG_FAVORITE);
                     favoriteFab.setImageResource(R.drawable.ic_favorite_white_24dp);
@@ -178,9 +165,9 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     public void onStart() {
         super.onStart();
 
-        if(mMovieId > 0){
-            getLoaderManager().initLoader(MOVIE_DETAILS_LOADER,null,this);
-            getLoaderManager().initLoader(FAVORITE_MOVIE_DETAILS_LOADER,null,this);
+        if (mMovieId > 0) {
+            getLoaderManager().initLoader(MOVIE_DETAILS_LOADER, null, this);
+            getLoaderManager().initLoader(FAVORITE_MOVIE_DETAILS_LOADER, null, this);
         }
     }
 
@@ -203,8 +190,8 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        Log.d(LOG_TAG,"onSaveInstanceState movieDetailViewPager.getCurrentItem() => "+ movieDetailViewPager.getCurrentItem());
-        outState.putInt(KEY_VIEW_PAGER_CURRENT_ITEM,movieDetailViewPager.getCurrentItem());
+        Log.d(LOG_TAG, "onSaveInstanceState movieDetailViewPager.getCurrentItem() => " + movieDetailViewPager.getCurrentItem());
+        outState.putInt(KEY_VIEW_PAGER_CURRENT_ITEM, movieDetailViewPager.getCurrentItem());
         super.onSaveInstanceState(outState);
     }
 
@@ -215,7 +202,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
      */
     private void updateOnUI(MovieDetails movieDetails) {
 
-        if(movieDetails == null){
+        if (movieDetails == null) {
             return;
         }
 
@@ -240,13 +227,12 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
 
-        if(id == MOVIE_DETAILS_LOADER){
+        if (id == MOVIE_DETAILS_LOADER) {
             Uri movieDetailsUri = MoviesContract.MoviesEntry.buildMoviesWithIdUri(mMovieId);
-            return new CursorLoader(getActivity(),movieDetailsUri,null, MoviesContract.MoviesEntry._ID+"=?",new String[]{String.valueOf(mMovieId)},null);
-        }
-        else if(id == FAVORITE_MOVIE_DETAILS_LOADER){
+            return new CursorLoader(getActivity(), movieDetailsUri, null, MoviesContract.MoviesEntry._ID + "=?", new String[]{String.valueOf(mMovieId)}, null);
+        } else if (id == FAVORITE_MOVIE_DETAILS_LOADER) {
             Uri favoriteMovieUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
-            return new CursorLoader(getActivity(),favoriteMovieUri,null, MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID+"=?",new String[]{String.valueOf(mMovieId)},null);
+            return new CursorLoader(getActivity(), favoriteMovieUri, null, MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + "=?", new String[]{String.valueOf(mMovieId)}, null);
         }
 
         return null;
@@ -255,7 +241,7 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
     @Override
     public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
 
-        if(loader.getId() == MOVIE_DETAILS_LOADER) {
+        if (loader.getId() == MOVIE_DETAILS_LOADER) {
             Log.d(LOG_TAG, "cursor count =>" + cursor.getCount());
 
             if (cursor != null && cursor.getCount() > 0) {
@@ -286,15 +272,13 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
                     updateOnUI(movieDetails);
                 }
             }
-        }
-        else if(loader.getId() == FAVORITE_MOVIE_DETAILS_LOADER){
+        } else if (loader.getId() == FAVORITE_MOVIE_DETAILS_LOADER) {
 
-            if(cursor.getCount() > 0){
+            if (cursor.getCount() > 0) {
                 // it is a favorite movie
                 favoriteFab.setTag(TAG_FAVORITE);
                 favoriteFab.setImageResource(R.drawable.ic_favorite_white_24dp);
-            }
-            else{
+            } else {
                 // it is not a favorite movie
                 favoriteFab.setTag(TAG_NOT_FAVORITE);
                 favoriteFab.setImageResource(R.drawable.ic_favorite_border_white_24dp);
@@ -307,28 +291,28 @@ public class MovieDetailFragment extends Fragment implements LoaderManager.Loade
 
     }
 
-    /**
-     * Interface to communicate with host fragment.
-     */
-    public interface OnMovieDetailFragmentListener {
-        //void onChangeOfFavorites();
-    }
-
     // Remove current movie from favorites
     private void removeFromFavorites() {
         Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
-        mContentResolver.delete(favoriteMoviesUri,MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{String.valueOf(mMovieId)});
+        mContentResolver.delete(favoriteMoviesUri, MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + " = ?", new String[]{String.valueOf(mMovieId)});
         //mListener.onChangeOfFavorites();
     }
 
     // Add current movie to favorites
     private void addToFavorites() {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID,mMovieId);
+        contentValues.put(MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID, mMovieId);
 
         Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
-        mContentResolver.insert(favoriteMoviesUri,contentValues);
+        mContentResolver.insert(favoriteMoviesUri, contentValues);
         //mListener.onChangeOfFavorites();
+    }
+
+    /**
+     * Interface to communicate with host fragment.
+     */
+    public interface OnMovieDetailFragmentListener {
+        //void onChangeOfFavorites();
     }
 
 }

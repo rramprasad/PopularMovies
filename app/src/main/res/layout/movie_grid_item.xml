@@ -8,11 +8,11 @@
     card_view:elevation="4dp">
 
     <ImageView
-    android:id="@+id/movie_poster"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:adjustViewBounds="true"
-    android:scaleType="centerCrop" />
+        android:id="@+id/movie_poster"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop" />
 
     <!--<ImageView
         android:id="@+id/movie_poster_selection"

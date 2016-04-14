@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
 
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.fragments.MovieDetailFragment;
@@ -17,7 +16,7 @@ import butterknife.ButterKnife;
  * @author RAMPRASAD
  *         Main Activity for movies.
  */
-public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMoviesFragmentListener,MovieDetailFragment.OnMovieDetailFragmentListener  {
+public class MainActivity extends AppCompatActivity implements MoviesFragment.OnMoviesFragmentListener, MovieDetailFragment.OnMovieDetailFragmentListener {
 
     public static final String INTENT_KEY_MOVIE_ID = "intent_key_movie_id";
     private boolean twoPane;
@@ -39,7 +38,7 @@ public class MainActivity extends AppCompatActivity implements MoviesFragment.On
          * Check detail container available or not.
          * It contains only sw600dp devices(tablets).
          */
-        if (ButterKnife.findById(this,R.id.framelayout_detail_container) != null) {
+        if (ButterKnife.findById(this, R.id.framelayout_detail_container) != null) {
             twoPane = true;
         }
 

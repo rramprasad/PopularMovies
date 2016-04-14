@@ -1,14 +1,11 @@
 package com.exinnos.popularmovies.fragments;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -19,38 +16,21 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 
-import com.exinnos.popularmovies.BuildConfig;
 import com.exinnos.popularmovies.R;
 import com.exinnos.popularmovies.adapters.MoviesAdapter;
 import com.exinnos.popularmovies.data.Movie;
-import com.exinnos.popularmovies.data.MoviesData;
 import com.exinnos.popularmovies.database.MoviesContract;
-import com.exinnos.popularmovies.database.MoviesDbHelper;
-import com.exinnos.popularmovies.network.MoviesAPIService;
-import com.exinnos.popularmovies.sync.MoviesSyncAdapter;
-import com.exinnos.popularmovies.util.AppConstants;
 import com.exinnos.popularmovies.util.AppUtilities;
-import com.facebook.stetho.okhttp3.StethoInterceptor;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
-import okhttp3.OkHttpClient;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * @author RAMPRASAD
@@ -65,7 +45,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     private static final int HIGHEST_RATED_MOVIES_LOADER = 2;
     private static final int FAVORITE_MOVIES_LOADER = 3;
 
-    private static final String[] POPULAR_MOVIES_COLUMNS = {MoviesContract.PopularMoviesEntry.TABLE_NAME + "." + MoviesContract.PopularMoviesEntry._ID,MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID, MoviesContract.MoviesEntry.COLUMN_POSTER_PATH};
+    private static final String[] POPULAR_MOVIES_COLUMNS = {MoviesContract.PopularMoviesEntry.TABLE_NAME + "." + MoviesContract.PopularMoviesEntry._ID, MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID, MoviesContract.MoviesEntry.COLUMN_POSTER_PATH};
 
     private static final String[] HIGHEST_RATED_MOVIES_COLUMNS = {MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "." + MoviesContract.HighestRatedMoviesEntry._ID,
             MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID, MoviesContract.MoviesEntry.COLUMN_POSTER_PATH};
@@ -73,21 +53,15 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String[] FAVORITE_MOVIES_COLUMNS = {MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "." + MoviesContract.FavoriteMoviesEntry._ID,
             MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID, MoviesContract.MoviesEntry.COLUMN_POSTER_PATH};
     private static final String KEY_MOVIE_CURRENT_POSITION = "key_movie_current_position";
-
-    private OnMoviesFragmentListener mListener;
-    private View rootView;
-
     @Bind(R.id.recyclerview_for_movies)
     RecyclerView moviesRecyclerView;
-
+    Toolbar toolbar;
+    AppCompatSpinner moviesTypeSpinner;
+    private OnMoviesFragmentListener mListener;
+    private View rootView;
     private GridLayoutManager moviesGridLayoutManager;
     private ArrayList<Movie> moviesArrayList;
     private MoviesAdapter moviesAdapter;
-
-    Toolbar toolbar;
-
-    AppCompatSpinner moviesTypeSpinner;
-
     private String sortByArray[] = {"Most popular", "Highest Rated", "My Favorite"};
     private int mSelectedMoviePosition = -1;
     //private int previousPosition = -1;
@@ -114,7 +88,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         //setRetainInstance(true);
 
-        if(savedInstanceState != null){
+        if (savedInstanceState != null) {
             mSelectedMoviePosition = savedInstanceState.getInt(KEY_MOVIE_CURRENT_POSITION);
             //mConfigChanged = 1;
         }
@@ -131,10 +105,9 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         moviesRecyclerView.setHasFixedSize(true);
 
-        if(AppUtilities.getDeviceOrientation(getActivity()) == Configuration.ORIENTATION_PORTRAIT){
+        if (AppUtilities.getDeviceOrientation(getActivity()) == Configuration.ORIENTATION_PORTRAIT) {
             moviesGridLayoutManager = new GridLayoutManager(getActivity(), 2);
-        }
-        else{
+        } else {
             moviesGridLayoutManager = new GridLayoutManager(getActivity(), 3);
         }
 
@@ -218,15 +191,15 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
                 switch (position) {
                     case 0:
                         //getLoaderManager().initLoader(POPULAR_MOVIES_LOADER,null,MoviesFragment.this);
-                        initOrRestartLoader(POPULAR_MOVIES_LOADER,null,MoviesFragment.this);
+                        initOrRestartLoader(POPULAR_MOVIES_LOADER, null, MoviesFragment.this);
                         break;
                     case 1:
                         //getLoaderManager().initLoader(HIGHEST_RATED_MOVIES_LOADER,null,MoviesFragment.this);
-                        initOrRestartLoader(HIGHEST_RATED_MOVIES_LOADER,null,MoviesFragment.this);
+                        initOrRestartLoader(HIGHEST_RATED_MOVIES_LOADER, null, MoviesFragment.this);
                         break;
                     case 2:
                         //getLoaderManager().initLoader(FAVORITE_MOVIES_LOADER,null,MoviesFragment.this);
-                        initOrRestartLoader(FAVORITE_MOVIES_LOADER,null,MoviesFragment.this);
+                        initOrRestartLoader(FAVORITE_MOVIES_LOADER, null, MoviesFragment.this);
                         break;
                 }
             }
@@ -260,10 +233,9 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
     private void initOrRestartLoader(int loaderId, Bundle args, LoaderManager.LoaderCallbacks callbacks) {
 
-        if(getLoaderManager().getLoader(loaderId) == null){
+        if (getLoaderManager().getLoader(loaderId) == null) {
             getLoaderManager().initLoader(loaderId, args, callbacks);
-        }
-        else{
+        } else {
             getLoaderManager().restartLoader(loaderId, args, callbacks);
         }
 
@@ -289,7 +261,7 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onSaveInstanceState(Bundle outState) {
         mSelectedMoviePosition = moviesAdapter.getSelectedPosition();
-        outState.putInt(KEY_MOVIE_CURRENT_POSITION,mSelectedMoviePosition);
+        outState.putInt(KEY_MOVIE_CURRENT_POSITION, mSelectedMoviePosition);
         super.onSaveInstanceState(outState);
     }
 
@@ -316,19 +288,19 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
             Uri popularMoviesUri = MoviesContract.PopularMoviesEntry.buildPopularMoviesUri();
 
             return new CursorLoader(getActivity(), popularMoviesUri, POPULAR_MOVIES_COLUMNS, null, null, sortOrder);
-        } else if(id == HIGHEST_RATED_MOVIES_LOADER){
+        } else if (id == HIGHEST_RATED_MOVIES_LOADER) {
 
             String sortOrder = MoviesContract.MoviesEntry.COLUMN_VOTE_AVERAGE + " DESC";
 
             Uri highestRatedMoviesUri = MoviesContract.HighestRatedMoviesEntry.buildHighestRatedMoviesUri();
 
-            return new CursorLoader(getActivity(),highestRatedMoviesUri,HIGHEST_RATED_MOVIES_COLUMNS,null,null,sortOrder);
-        } else if(id == FAVORITE_MOVIES_LOADER){
+            return new CursorLoader(getActivity(), highestRatedMoviesUri, HIGHEST_RATED_MOVIES_COLUMNS, null, null, sortOrder);
+        } else if (id == FAVORITE_MOVIES_LOADER) {
 
 
             Uri favoriteMoviesUri = MoviesContract.FavoriteMoviesEntry.buildFavoriteMoviesUri();
 
-            return new CursorLoader(getActivity(),favoriteMoviesUri,FAVORITE_MOVIES_COLUMNS,null,null,null);
+            return new CursorLoader(getActivity(), favoriteMoviesUri, FAVORITE_MOVIES_COLUMNS, null, null, null);
         }
 
 
@@ -340,21 +312,19 @@ public class MoviesFragment extends Fragment implements LoaderManager.LoaderCall
 
         int selectedItemPosition = moviesTypeSpinner.getSelectedItemPosition();
 
-        Log.d(LOG_TAG,"onLoadFinished");
-        Log.d(LOG_TAG,"selectedItemPosition =>"+selectedItemPosition);
+        Log.d(LOG_TAG, "onLoadFinished");
+        Log.d(LOG_TAG, "selectedItemPosition =>" + selectedItemPosition);
 
-        if(loader.getId() == POPULAR_MOVIES_LOADER && selectedItemPosition == 0){
-            Log.d(LOG_TAG,"POPULAR_MOVIES_LOADER mSelectedMoviePosition =>"+mSelectedMoviePosition);
+        if (loader.getId() == POPULAR_MOVIES_LOADER && selectedItemPosition == 0) {
+            Log.d(LOG_TAG, "POPULAR_MOVIES_LOADER mSelectedMoviePosition =>" + mSelectedMoviePosition);
             moviesAdapter.swapCursor(cursor);
             moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
-        }
-        else if(loader.getId() == HIGHEST_RATED_MOVIES_LOADER  && selectedItemPosition == 1){
-            Log.d(LOG_TAG,"HIGHEST_RATED_MOVIES_LOADER mSelectedMoviePosition=>"+mSelectedMoviePosition);
+        } else if (loader.getId() == HIGHEST_RATED_MOVIES_LOADER && selectedItemPosition == 1) {
+            Log.d(LOG_TAG, "HIGHEST_RATED_MOVIES_LOADER mSelectedMoviePosition=>" + mSelectedMoviePosition);
             moviesAdapter.swapCursor(cursor);
             moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
-        }
-        else if(loader.getId() == FAVORITE_MOVIES_LOADER && selectedItemPosition == 2){
-            Log.d(LOG_TAG,"FAVORITE_MOVIES_LOADER mSelectedMoviePosition=>"+mSelectedMoviePosition);
+        } else if (loader.getId() == FAVORITE_MOVIES_LOADER && selectedItemPosition == 2) {
+            Log.d(LOG_TAG, "FAVORITE_MOVIES_LOADER mSelectedMoviePosition=>" + mSelectedMoviePosition);
             moviesAdapter.swapCursor(cursor);
             moviesAdapter.setSelectedPosition(mSelectedMoviePosition);
         }

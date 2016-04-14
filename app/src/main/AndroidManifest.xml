@@ -51,7 +51,8 @@
         </service>
 
         <!-- Service for SyncAdapter to bound with Sync Adapter framework -->
-        <service android:name=".sync.MoviesSyncService"
+        <service
+            android:name=".sync.MoviesSyncService"
             android:exported="true"
             android:process=":sync">
             <intent-filter>

@@ -7,12 +7,8 @@ import android.content.ContentProviderClient;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.SyncRequest;
 import android.content.SyncResult;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,7 +23,6 @@ import com.exinnos.popularmovies.data.MovieTrailer;
 import com.exinnos.popularmovies.data.MovieTrailersData;
 import com.exinnos.popularmovies.data.MoviesData;
 import com.exinnos.popularmovies.database.MoviesContract;
-import com.exinnos.popularmovies.database.MoviesDbHelper;
 import com.exinnos.popularmovies.network.MoviesAPIService;
 import com.exinnos.popularmovies.util.AppConstants;
 import com.facebook.stetho.okhttp3.StethoInterceptor;
@@ -49,8 +44,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
     private static final int HOUR_IN_SECS = 60 * 60; // 1 Hour = 60 seconds * 60 minutes
-    private static final int SYNC_INTERVAL = 2 * HOUR_IN_SECS ; // 2 hour
-    private static final int SYNC_FLEX_TIME = SYNC_INTERVAL/6 ; // 20 minutes
+    private static final int SYNC_INTERVAL = 2 * HOUR_IN_SECS; // 2 hour
+    private static final int SYNC_FLEX_TIME = SYNC_INTERVAL / 6; // 20 minutes
     private static final String LOG_TAG = MoviesAdapter.class.getSimpleName();
 
     private static final String SORT_ORDER_POPULARITY_DESC = "popularity.desc";
@@ -75,12 +70,112 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
         mContentResolver = context.getContentResolver();
     }
 
+    /**
+     * Get sync account
+     *
+     * @param context
+     * @return account
+     */
+    public static Account getSyncAccount(Context context) {
+
+        Log.d("popular", "getSyncAccount");
+        // instance of account manager
+        AccountManager accountManager = (AccountManager) context.getSystemService(Context.ACCOUNT_SERVICE);
+
+        Account account = new Account(context.getString(R.string.app_name), context.getString(R.string.movies_sync_account_type));
+
+        if (accountManager.getPassword(account) == null) {
+            // Account doesn't exist
+
+            if (!accountManager.addAccountExplicitly(account, "", null)) {
+                return null; // return null,if account not created
+            }
+
+            //Account created explicitly,call onAccountCreated() method
+            onAccountCreated(account, context);
+        }
+
+
+        return account;
+    }
+
+    /**
+     * Called after new account created
+     *
+     * @param account
+     * @param context
+     */
+    private static void onAccountCreated(Account account, Context context) {
+
+        Log.d("popular", "onAccountCreated");
+
+        // Configure periodic sync with SYNC_INTERVAL,SYNC_FLEX_TIME
+        MoviesSyncAdapter.configurePeriodicExecution(context, SYNC_INTERVAL, SYNC_FLEX_TIME);
+
+        ContentResolver.setSyncAutomatically(account, context.getString(R.string.movies_content_authority), true);
+
+        syncImmediately(context);
+    }
+
+    /**
+     * Sync the sync adapter immediately.
+     *
+     * @param context
+     */
+    public static void syncImmediately(Context context) {
+
+        Log.d("popular", "syncImmediately");
+
+        Account syncAccount = getSyncAccount(context);
+
+        String contentAuthority = context.getString(R.string.movies_content_authority);
+
+        Bundle bundle = new Bundle();
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, true);
+        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, true);
+        ContentResolver.requestSync(syncAccount, contentAuthority, bundle);
+    }
+
+    /**
+     * Helper method to periodic sync of sync adapter
+     *
+     * @param context
+     * @param syncInterval
+     * @param syncFlexTime
+     */
+    private static void configurePeriodicExecution(Context context, int syncInterval, int syncFlexTime) {
+
+        Account syncAccount = getSyncAccount(context);
+
+        String contentAuthority = context.getString(R.string.movies_content_authority);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            SyncRequest syncRequest = new SyncRequest.Builder()
+                    .syncPeriodic(syncInterval, syncFlexTime)
+                    .setSyncAdapter(syncAccount, contentAuthority)
+                    .setExtras(new Bundle())
+                    .build();
+
+            ContentResolver.requestSync(syncRequest);
+        } else {
+
+            ContentResolver.addPeriodicSync(syncAccount, contentAuthority, new Bundle(), syncInterval);
+        }
+    }
+
+    /**
+     * Initialize sync adapter
+     */
+    public static void initializeSyncAdapter(Context context) {
+        getSyncAccount(context);
+    }
+
     @Override
     public void onPerformSync(Account account, Bundle bundle, String authority, ContentProviderClient contentProviderClient, SyncResult syncResult) {
-        Log.d("popular","Sync started");
+        Log.d("popular", "Sync started");
 
         String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
-        getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("sync started_"+time,time).commit();
+        getContext().getSharedPreferences("com.exinnos.popularmovies", Context.MODE_PRIVATE).edit().putString("sync started_" + time, time).commit();
 
         syncPopularMovies();
         syncHighestRatedMovies();
@@ -116,7 +211,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                 if (response != null) {
                     List<Movie> moviesList = response.body().getMovies();
 
-                    Log.d("popular",  "moviesList.size => " + moviesList.size());
+                    Log.d("popular", "moviesList.size => " + moviesList.size());
 
                     ContentValues[] cvv1 = new ContentValues[moviesList.size()];
                     ContentValues[] cvv2 = new ContentValues[moviesList.size()];
@@ -150,12 +245,12 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         syncMovieReviews(movie.getId());
                     }
 
-                    mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI,cvv1);
+                    mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, cvv1);
 
-                    mContentResolver.bulkInsert(MoviesContract.PopularMoviesEntry.CONTENT_URI,cvv2);
+                    mContentResolver.bulkInsert(MoviesContract.PopularMoviesEntry.CONTENT_URI, cvv2);
 
                     String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
-                    getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("popular_movies_sync_completed_"+time,time).commit();
+                    getContext().getSharedPreferences("com.exinnos.popularmovies", Context.MODE_PRIVATE).edit().putString("popular_movies_sync_completed_" + time, time).commit();
 
                 }
             }
@@ -169,6 +264,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
     /**
      * Sync movie trailers by given Id
+     *
      * @param movieId
      */
     private void syncMovieTrailers(int movieId) {
@@ -193,13 +289,13 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
                 Log.d("popular", "onResponse of movie trailer sync");
 
-                if (response != null &&  response.body() != null) {
+                if (response != null && response.body() != null) {
 
                     List<MovieTrailer> movieTrailers = response.body().getMovieTrailers();
 
                     int movieId = response.body().getId();
 
-                    Log.d("popular",  "movieTrailers.size => " + movieTrailers.size());
+                    Log.d("popular", "movieTrailers.size => " + movieTrailers.size());
 
                     ContentValues[] cvv1 = new ContentValues[movieTrailers.size()];
 
@@ -221,10 +317,10 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         cvv1[i] = movieTrailerContentValues;
                     }
 
-                    mContentResolver.bulkInsert(MoviesContract.MovieTrailersEntry.CONTENT_URI,cvv1);
+                    mContentResolver.bulkInsert(MoviesContract.MovieTrailersEntry.CONTENT_URI, cvv1);
 
                     String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
-                    getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("movie_trailers_sync_completed_"+time,time).commit();
+                    getContext().getSharedPreferences("com.exinnos.popularmovies", Context.MODE_PRIVATE).edit().putString("movie_trailers_sync_completed_" + time, time).commit();
 
                 }
             }
@@ -238,6 +334,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
     /**
      * Sync movie Reviews by given Id
+     *
      * @param movieId
      */
     private void syncMovieReviews(int movieId) {
@@ -267,7 +364,7 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
 
                     int movieId = response.body().getId();
 
-                    Log.d("popular",  "movieReviews.size => " + movieReviews.size());
+                    Log.d("popular", "movieReviews.size => " + movieReviews.size());
 
                     ContentValues[] cvv1 = new ContentValues[movieReviews.size()];
 
@@ -285,10 +382,10 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         cvv1[i] = movieReviewContentValues;
                     }
 
-                    mContentResolver.bulkInsert(MoviesContract.MovieReviewsEntry.CONTENT_URI,cvv1);
+                    mContentResolver.bulkInsert(MoviesContract.MovieReviewsEntry.CONTENT_URI, cvv1);
 
                     String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
-                    getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("movie_reviews_sync_completed_"+time,time).commit();
+                    getContext().getSharedPreferences("com.exinnos.popularmovies", Context.MODE_PRIVATE).edit().putString("movie_reviews_sync_completed_" + time, time).commit();
                 }
             }
 
@@ -298,7 +395,6 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
             }
         });
     }
-
 
     /**
      * Fetch highest rated movies from server
@@ -333,9 +429,9 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                     ContentValues[] cvv1 = new ContentValues[moviesList.size()];
                     ContentValues[] cvv2 = new ContentValues[moviesList.size()];
 
-                    for (int i = 0; i < moviesList.size() ; i++) {
+                    for (int i = 0; i < moviesList.size(); i++) {
 
-                         Movie movie = moviesList.get(i);
+                        Movie movie = moviesList.get(i);
 
                         ContentValues moviesContentValues = new ContentValues();
                         moviesContentValues.put(MoviesContract.MoviesEntry._ID, movie.getId());
@@ -362,11 +458,11 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                         syncMovieReviews(movie.getId());
                     }
 
-                    mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI,cvv1);
-                    mContentResolver.bulkInsert(MoviesContract.HighestRatedMoviesEntry.CONTENT_URI,cvv2);
+                    mContentResolver.bulkInsert(MoviesContract.MoviesEntry.CONTENT_URI, cvv1);
+                    mContentResolver.bulkInsert(MoviesContract.HighestRatedMoviesEntry.CONTENT_URI, cvv2);
 
                     String time = new SimpleDateFormat("dd_MM_yyyy_HH_mm_ss").format(new Date());
-                    getContext().getSharedPreferences("com.exinnos.popularmovies",Context.MODE_PRIVATE).edit().putString("highest_rated_movies_sync_completed_"+time,time).commit();
+                    getContext().getSharedPreferences("com.exinnos.popularmovies", Context.MODE_PRIVATE).edit().putString("highest_rated_movies_sync_completed_" + time, time).commit();
 
                 }
             }
@@ -376,104 +472,5 @@ public class MoviesSyncAdapter extends AbstractThreadedSyncAdapter {
                 Log.i(LOG_TAG, "Retrofit movies service on failure " + t.getMessage());
             }
         });
-    }
-
-
-    /**
-     * Get sync account
-     * @param context
-     * @return account
-     */
-    public static Account getSyncAccount(Context context){
-
-        Log.d("popular", "getSyncAccount");
-        // instance of account manager
-        AccountManager accountManager = (AccountManager)context.getSystemService(Context.ACCOUNT_SERVICE);
-
-        Account account = new Account(context.getString(R.string.app_name), context.getString(R.string.movies_sync_account_type));
-
-        if(accountManager.getPassword(account) == null){
-            // Account doesn't exist
-
-            if(!accountManager.addAccountExplicitly(account,"",null)){
-                return null; // return null,if account not created
-            }
-
-            //Account created explicitly,call onAccountCreated() method
-            onAccountCreated(account,context);
-        }
-
-
-        return account;
-    }
-
-    /**
-     * Called after new account created
-     * @param account
-     * @param context
-     */
-    private static void onAccountCreated(Account account, Context context) {
-
-        Log.d("popular", "onAccountCreated");
-
-        // Configure periodic sync with SYNC_INTERVAL,SYNC_FLEX_TIME
-        MoviesSyncAdapter.configurePeriodicExecution(context,SYNC_INTERVAL,SYNC_FLEX_TIME);
-
-        ContentResolver.setSyncAutomatically(account,context.getString(R.string.movies_content_authority),true);
-
-        syncImmediately(context);
-    }
-
-
-    /**
-     * Sync the sync adapter immediately.
-     * @param context
-     */
-    public static void syncImmediately(Context context) {
-
-        Log.d("popular", "syncImmediately");
-
-        Account syncAccount = getSyncAccount(context);
-
-        String contentAuthority = context.getString(R.string.movies_content_authority);
-
-        Bundle bundle = new Bundle();
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED,true);
-        bundle.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL,true);
-        ContentResolver.requestSync(syncAccount,contentAuthority,bundle);
-    }
-
-    /**
-     * Helper method to periodic sync of sync adapter
-     * @param context
-     * @param syncInterval
-     * @param syncFlexTime
-     */
-    private static void configurePeriodicExecution(Context context, int syncInterval, int syncFlexTime) {
-
-        Account syncAccount = getSyncAccount(context);
-
-        String contentAuthority = context.getString(R.string.movies_content_authority);
-
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
-            SyncRequest syncRequest = new SyncRequest.Builder()
-                    .syncPeriodic(syncInterval, syncFlexTime)
-                    .setSyncAdapter(syncAccount, contentAuthority)
-                    .setExtras(new Bundle())
-                    .build();
-
-            ContentResolver.requestSync(syncRequest);
-        }
-        else{
-
-            ContentResolver.addPeriodicSync(syncAccount,contentAuthority,new Bundle(),syncInterval);
-        }
-    }
-
-    /**
-     * Initialize sync adapter
-     */
-    public static void initializeSyncAdapter(Context context){
-        getSyncAccount(context);
     }
 }

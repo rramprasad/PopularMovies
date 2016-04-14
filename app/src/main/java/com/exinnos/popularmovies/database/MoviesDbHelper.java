@@ -9,20 +9,16 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class MoviesDbHelper extends SQLiteOpenHelper {
 
+    public static final String INTEGER_PRIMARY_KEY_AUTOINCREMENT = " INTEGER PRIMARY KEY AUTOINCREMENT";
     private static final String DATABASE_NAME = "Movies.db";
     private static final int DATABASE_VERSION = 1;
-
     private static final String TEXT_TYPE = " TEXT";
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String NUMERIC_TYPE = " NUMERIC";
     private static final String REAL_TYPE = " REAL";
     private static final String COMMA_SEP = ",";
-    public static final String INTEGER_PRIMARY_KEY_AUTOINCREMENT = " INTEGER PRIMARY KEY AUTOINCREMENT";
-
-
-
     // Create movies table
-    private static final String SQL_CREATE_MOVIES_TABLE = "CREATE TABLE "+ MoviesContract.MoviesEntry.TABLE_NAME+" ( "+
+    private static final String SQL_CREATE_MOVIES_TABLE = "CREATE TABLE " + MoviesContract.MoviesEntry.TABLE_NAME + " ( " +
             MoviesContract.MoviesEntry._ID + " INTEGER PRIMARY KEY" + COMMA_SEP +
             MoviesContract.MoviesEntry.COLUMN_ADULT + NUMERIC_TYPE + COMMA_SEP +
             MoviesContract.MoviesEntry.COLUMN_BACKDROP_PATH + TEXT_TYPE + COMMA_SEP +
@@ -44,23 +40,22 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
             MoviesContract.MoviesEntry.COLUMN_VOTE_COUNT + INTEGER_TYPE + ")";
 
     // delete movies table
-    private static final String SQL_DELETE_MOVIES_ENTRY = "DROP TABLE IF EXISTS "+ MoviesContract.MoviesEntry.TABLE_NAME;
-
+    private static final String SQL_DELETE_MOVIES_ENTRY = "DROP TABLE IF EXISTS " + MoviesContract.MoviesEntry.TABLE_NAME;
 
 
     // create popular movies table
-    private static final String SQL_CREATE_POPULAR_MOVIES_TABLE = "CREATE TABLE "+ MoviesContract.PopularMoviesEntry.TABLE_NAME + "( "+
+    private static final String SQL_CREATE_POPULAR_MOVIES_TABLE = "CREATE TABLE " + MoviesContract.PopularMoviesEntry.TABLE_NAME + "( " +
             MoviesContract.PopularMoviesEntry._ID + INTEGER_PRIMARY_KEY_AUTOINCREMENT + COMMA_SEP +
             MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + COMMA_SEP +
-            " FOREIGN KEY ("+ MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + ") REFERENCES "+ MoviesContract.MoviesEntry.TABLE_NAME + " ("+ MoviesContract.MoviesEntry._ID + ")"+ COMMA_SEP +
-            " UNIQUE ("+ MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
+            " FOREIGN KEY (" + MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + ") REFERENCES " + MoviesContract.MoviesEntry.TABLE_NAME + " (" + MoviesContract.MoviesEntry._ID + ")" + COMMA_SEP +
+            " UNIQUE (" + MoviesContract.PopularMoviesEntry.COLUMN_MOVIE_ID + ") ON CONFLICT REPLACE);";
 
     // delete popular movies table
     private static final String SQL_DELETE_POPULAR_MOVIES_TABLE = "DROP TABLE IF EXISTS " + MoviesContract.PopularMoviesEntry.TABLE_NAME;
 
 
     // create highest rated movies table
-    private static final String SQL_CREATE_HIGHEST_RATED_MOVIES_TABLE = "CREATE TABLE "+ MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "( "+
+    private static final String SQL_CREATE_HIGHEST_RATED_MOVIES_TABLE = "CREATE TABLE " + MoviesContract.HighestRatedMoviesEntry.TABLE_NAME + "( " +
             MoviesContract.HighestRatedMoviesEntry._ID + INTEGER_PRIMARY_KEY_AUTOINCREMENT + COMMA_SEP +
             MoviesContract.HighestRatedMoviesEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + ")";
 
@@ -69,7 +64,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
 
     // create favorite movies table
-    private static final String SQL_CREATE_FAVORITE_MOVIES_TABLE = "CREATE TABLE "+ MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "( "+
+    private static final String SQL_CREATE_FAVORITE_MOVIES_TABLE = "CREATE TABLE " + MoviesContract.FavoriteMoviesEntry.TABLE_NAME + "( " +
             MoviesContract.FavoriteMoviesEntry._ID + INTEGER_PRIMARY_KEY_AUTOINCREMENT + COMMA_SEP +
             MoviesContract.FavoriteMoviesEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + ")";
 
@@ -78,7 +73,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
 
     // create movie reviews table
-    private static final String SQL_CREATE_MOVIE_REVIEWS_TABLE = "CREATE TABLE "+ MoviesContract.MovieReviewsEntry.TABLE_NAME + "( "+
+    private static final String SQL_CREATE_MOVIE_REVIEWS_TABLE = "CREATE TABLE " + MoviesContract.MovieReviewsEntry.TABLE_NAME + "( " +
             MoviesContract.MovieReviewsEntry._ID + " TEXT PRIMARY KEY" + COMMA_SEP +
             MoviesContract.MovieReviewsEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + COMMA_SEP +
             MoviesContract.MovieReviewsEntry.COLUMN_AUTHOR + TEXT_TYPE + COMMA_SEP +
@@ -90,7 +85,7 @@ public class MoviesDbHelper extends SQLiteOpenHelper {
 
 
     // create movie trailers table
-    private static final String SQL_CREATE_MOVIE_TRAILERS_TABLE = "CREATE TABLE "+ MoviesContract.MovieTrailersEntry.TABLE_NAME + "( "+
+    private static final String SQL_CREATE_MOVIE_TRAILERS_TABLE = "CREATE TABLE " + MoviesContract.MovieTrailersEntry.TABLE_NAME + "( " +
             MoviesContract.MovieTrailersEntry._ID + " TEXT PRIMARY KEY" + COMMA_SEP +
             MoviesContract.MovieTrailersEntry.COLUMN_MOVIE_ID + INTEGER_TYPE + COMMA_SEP +
             MoviesContract.MovieTrailersEntry.COLUMN_ISO6391 + TEXT_TYPE + COMMA_SEP +

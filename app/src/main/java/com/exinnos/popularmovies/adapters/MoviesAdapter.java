@@ -22,8 +22,8 @@ import butterknife.ButterKnife;
  */
 public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.MovieViewHolder> {
 
-    private final OnMovieClickListener mMovieClickListener;
     private static boolean twoPane = false;
+    private final OnMovieClickListener mMovieClickListener;
     private Context context;
     private int mSelectedPosition = -1;
     private int selectedPosition;
@@ -38,7 +38,7 @@ public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.Movie
     @Override
     public MovieViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_grid_item,parent,false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.movie_grid_item, parent, false);
 
         MovieViewHolder movieViewHolder = new MovieViewHolder(view);
         return movieViewHolder;
@@ -54,23 +54,22 @@ public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.Movie
                 .error(R.drawable.ic_alert_error)
                 .into(customViewHolder.movieposterImageView);
 
-        if(customViewHolder.movie_poster_selection != null){
-            if(mSelectedPosition == cursor.getPosition()){
+        if (customViewHolder.movie_poster_selection != null) {
+            if (mSelectedPosition == cursor.getPosition()) {
                 customViewHolder.movie_poster_selection.setVisibility(View.VISIBLE);
-            }
-            else{
+            } else {
                 customViewHolder.movie_poster_selection.setVisibility(View.GONE);
             }
         }
     }
 
+    public int getSelectedPosition() {
+        return mSelectedPosition;
+    }
+
     public void setSelectedPosition(int selectedPosition) {
         mSelectedPosition = selectedPosition;
         notifyDataSetChanged();
-    }
-
-    public int getSelectedPosition() {
-        return mSelectedPosition;
     }
 
     public interface OnMovieClickListener {
@@ -95,7 +94,7 @@ public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.Movie
 
             movie_poster_selection = (ImageView) itemView.findViewById(R.id.movie_poster_selection);
 
-            if(movie_poster_selection != null){
+            if (movie_poster_selection != null) {
                 twoPane = true;
             }
 
@@ -112,7 +111,7 @@ public class MoviesAdapter extends CursorRecyclerViewAdapter<MoviesAdapter.Movie
             if (cursor != null && cursor.getCount() > 0) {
                 cursor.moveToPosition(getAdapterPosition());
 
-                if(twoPane){
+                if (twoPane) {
                     mSelectedPosition = getAdapterPosition();
                     notifyDataSetChanged();
                 }

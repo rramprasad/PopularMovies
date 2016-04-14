@@ -35,7 +35,6 @@ public final class MoviesContract {
     public static final String PATH_MOVIE_TRAILERS = "movie_trailers";
 
 
-
     public MoviesContract() {
     }
 
@@ -76,7 +75,7 @@ public final class MoviesContract {
         }
 
         public static Uri buildMoviesWithIdUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI,id);
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 
@@ -98,7 +97,7 @@ public final class MoviesContract {
         }
 
         public static Uri buildPopularMoviesWithIdUri(long id) {
-            return ContentUris.withAppendedId(CONTENT_URI,id);
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 
@@ -123,7 +122,7 @@ public final class MoviesContract {
         }
 
         public static Uri buildHighestRatedMoviesWithIdUri(Integer id) {
-            return ContentUris.withAppendedId(CONTENT_URI,id);
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 
@@ -148,7 +147,7 @@ public final class MoviesContract {
         }
 
         public static Uri buildFavoriteMoviesWithIdUri(Integer id) {
-            return ContentUris.withAppendedId(CONTENT_URI,id);
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 
@@ -176,7 +175,7 @@ public final class MoviesContract {
         }
 
         public static Uri buildMovieReviewsWithIdUri(Integer id) {
-            return ContentUris.withAppendedId(CONTENT_URI,id);
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 
@@ -208,7 +207,7 @@ public final class MoviesContract {
         }
 
         public static Uri buildMovieTrailersWithIdUri(Integer id) {
-            return ContentUris.withAppendedId(CONTENT_URI,id);
+            return ContentUris.withAppendedId(CONTENT_URI, id);
         }
     }
 

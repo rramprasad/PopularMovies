@@ -21,7 +21,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
-        Toolbar toolbar = ButterKnife.findById(this,R.id.toolbar);
+        Toolbar toolbar = ButterKnife.findById(this, R.id.toolbar);
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -29,7 +29,7 @@ public class MovieDetailActivity extends AppCompatActivity implements MovieDetai
 
         int movieId = getIntent().getIntExtra(MainActivity.INTENT_KEY_MOVIE_ID, 0);
 
-        if(savedInstanceState == null) {
+        if (savedInstanceState == null) {
             MovieDetailFragment movieDetailFragment = MovieDetailFragment.newInstance(movieId);
             getSupportFragmentManager().beginTransaction().replace(R.id.movie_detail_container, movieDetailFragment).commit();
         }
